@@ -17,7 +17,7 @@ const Page = () => {
       <div className="flex justify-between items-center">
         <h3 className="text-[#160E4B] font-medium text-xl">Transactions</h3>
 
-        {/* Date Picker */}
+        
         <DatePicker
           onChange={(date) => setSelectedDate(date)}
           placeholder={
