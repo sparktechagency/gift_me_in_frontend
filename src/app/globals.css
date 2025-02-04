@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.custom-datepicker input::placeholder {
+    color: #160E4B !important;
+    font-weight: normal;
+    font-size: 18px;
+  }
+
+
+  input[type="radio"]:checked {
+    background-color: #F82BA9;
+    border-color: #F82BA9;
+  }
+
+
+
+  .recharts-wrapper:focus, 
+.recharts-wrapper:hover {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.radio-btn {
+  accent-color: #F82BA9; /* This changes the color of the radio button */
+}
+
+/* Remove number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}
