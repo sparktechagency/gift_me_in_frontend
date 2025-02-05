@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Header() {
   return (
@@ -8,7 +9,7 @@ export default function Header() {
       <section className="container mx-auto flex items-center justify-between md:px-6 flex-wrap">
         {/* Logo */}
         <div>
-          <Image src={"/icons/logo.png"} width={131} height={53} alt="website logo" />
+          <Link href={"/"}><Image src={"/icons/logo.png"} width={131} height={53} alt="website logo" /></Link>
         </div>
 
         {/* Notification & Profile */}
