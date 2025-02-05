@@ -2,8 +2,10 @@
 import React, { useState } from "react";
 import { Select, Space } from "antd";
 import Image from "next/image";
-import Table from "../../../components/Table";
-import { OrderData } from "../../../../utils/CustomData";
+import Table from "../../components/Table";
+import { OrderData } from "../../../utils/CustomData";
+
+
 
 
 

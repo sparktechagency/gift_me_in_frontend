@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { DatePicker } from "antd";
 import { DownOutlined } from "@ant-design/icons";
-import Table from "../../../components/Table";
-import { TransectionData } from "../../../../utils/CustomData";
+import Table from "../../components/Table";
+import { TransectionData } from "../../../utils/CustomData";
 
 const TABLE_HEADINGS = ["Date", "Name", "Subscription Plan", "Billing Cycle", "Amount", "Status"];
 

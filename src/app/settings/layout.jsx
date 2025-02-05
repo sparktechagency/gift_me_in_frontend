@@ -12,8 +12,8 @@ export default function EventLayout({ children }) {
       {/* Navigation Bar */}
       <div className="flex justify-start gap-6 bg-white p-4">
         {[
-          { name: "Admin", path: "/dashboard/settings/admin" },
-          { name: "Password", path: "/dashboard/settings/admin/password" },
+          { name: "Admin", path: "/settings/admin" },
+          { name: "Password", path: "/settings/admin/password" },
         ].map((item) => (
           <Link
             key={item.path}

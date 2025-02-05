@@ -3,8 +3,10 @@ import { useState } from "react";
 import { DownOutlined } from "@ant-design/icons";
 import { DatePicker } from "antd";
 import dayjs from 'dayjs';
-import Table from "../../../../components/Table";
-import { HistoryData } from "../../../../../utils/CustomData";
+import Table from "../../../components/Table";
+import { HistoryData } from "../../../../utils/CustomData";
+
+
 
 
 const head = ["Date","Event","User","Gift","Status","Action"]

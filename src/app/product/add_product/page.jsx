@@ -1,13 +1,13 @@
 "use client";
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import Modal from "../../../../components/Modal";
-import InputField from "../../../../components/reusable/InputField";
-import TextAreaField from "../../../../components/reusable/TextAreaField";
-import TagsInput from "../../../../components/reusable/TagsInput";
-import SelectField from "../../../../components/reusable/SelectField";
-import FileUpload from "../../../../components/reusable/FileUpload";
-import RadioButton from "../../../../components/reusable/RadioButton";
+import Modal from "../../../components/Modal";
+import InputField from "../../../components/reusable/InputField";
+import TextAreaField from "../../../components/reusable/TextAreaField";
+import TagsInput from "../../../components/reusable/TagsInput";
+import SelectField from "../../../components/reusable/SelectField";
+import FileUpload from "../../../components/reusable/FileUpload";
+import RadioButton from "../../../components/reusable/RadioButton";
 
 
 export default function ProductForm() {

@@ -2,8 +2,8 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
-import Table from "../../../components/Table";
-import { CategoryData } from "../../../../utils/CustomData";
+import Table from "../../components/Table";
+import { CategoryData } from "../../../utils/CustomData";
 
 const CATEGORY_HEAD = ["Image", "Category", "Stock", "Action"];
 

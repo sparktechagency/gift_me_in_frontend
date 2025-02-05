@@ -4,8 +4,10 @@ import React, { useState, useCallback } from "react";
 import { Select, Space } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import Table from "../../../components/Table";
-import { productData } from "../../../../utils/CustomData";
+import Table from "../../components/Table";
+import { productData } from "../../../utils/CustomData";
+
+
 
 const TABLE_HEAD = ["Product Name", "Category", "Price", "Status", "Publish Date", "Action"];
 
@@ -58,7 +60,7 @@ const Page = () => {
 
         {/* Add Product Button */}
         <button
-          onClick={() => router.push("/dashboard/product/add_product")}
+          onClick={() => router.push("/product/add_product")}
           className="text-white font-medium text-lg bg-[#F82BA9] px-4 py-3 rounded-md"
         >
           + Add Product

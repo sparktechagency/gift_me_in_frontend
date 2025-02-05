@@ -3,8 +3,8 @@ import { useState } from "react";
 import { DownOutlined } from "@ant-design/icons";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
-import Table from "../../../../components/Table";
-import { UpComingData } from "../../../../../utils/CustomData";
+import Table from "../../../components/Table";
+import { UpComingData } from "../../../../utils/CustomData";
 const tableHead = ["Date", "Event", "User", "Gift", "Action"];
 
 export default function EventTable() {

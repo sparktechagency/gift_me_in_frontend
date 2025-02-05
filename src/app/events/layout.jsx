@@ -11,9 +11,9 @@ export default function EventLayout({ children }) {
       {/* Navigation Bar */}
       <div className="flex justify-start gap-6 bg-white p-4">
         {[
-          { name: "Upcoming Events", path: "/dashboard/events/upcoming_events" },
-          { name: "Event History", path: "/dashboard/events/event_history" },
-          { name: "Event Calendar", path: "/dashboard/events/event_calendar" },
+          { name: "Upcoming Events", path: "/events/upcoming_events" },
+          { name: "Event History", path: "/events/event_history" },
+          { name: "Event Calendar", path: "/events/event_calendar" },
         ].map((item) => (
           <Link
             key={item.path}

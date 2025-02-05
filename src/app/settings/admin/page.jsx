@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useCallback } from "react";
 import Image from "next/image";
-import Table from "../../../../components/Table";
-import { AdminData } from "../../../../../utils/CustomData";
+import Table from "../../../components/Table";
+import { AdminData } from "../../../../utils/CustomData";
 
 const TableHead = ["Name", "Email", "Role", "Created Date", "Action"];
 

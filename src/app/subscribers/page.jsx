@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { Select } from "antd";
 import Image from "next/image";
-import Table from "../../../components/Table";
-import { SubscribersData } from "../../../../utils/CustomData";
+import Table from "../../components/Table";
+import { SubscribersData } from "../../../utils/CustomData";
 import { useRouter } from "next/navigation";
 
 const TABLE_HEADINGS = ["Name", "Subscription Plan", "Status", "Next Billing Date", "Action"];
