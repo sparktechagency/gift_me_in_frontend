@@ -1,15 +1,74 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import { Select, Space } from "antd";
+import React, { useState } from "react";
+import { Select, Space, Table, Input, Button } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import Table from "../../components/Table";
 import { productData } from "../../../utils/CustomData";
+import { useGetAllProductsQuery } from "../../redux/apiSlice/productSlice";
+import dayjs from "dayjs";
 
+const { Search } = Input;
 
-
-const TABLE_HEAD = ["Product Name", "Category", "Price", "Status", "Publish Date", "Action"];
+const TABLE_COLUMNS = [
+  {
+    title: "Product Name",
+    dataIndex: "productName",
+    key: "productName",
+    filteredValue: [],
+    onFilter: (value, record) =>
+      record.productName.toLowerCase().includes(value.toLowerCase()),
+  },
+  {
+    title: "Category",
+    dataIndex: ["productCategory", "categoryName"],
+    key: "productCategory",
+  },
+  {
+    title: "Regular Price",
+    dataIndex: "regularPrice",
+    key: "regularPrice",
+    align: "center",
+    sorter: (a, b) => a.price - b.price,
+  },
+  {
+    title: "Discounted Price",
+    dataIndex: "discountedPrice",
+    key: "discountedPrice",
+    align: "center",
+    sorter: (a, b) => a.price - b.price,
+  },
+  {
+    title: "Availability",
+    dataIndex: "availability",
+    key: "availability",
+    render: (availability) => (
+      <span
+        style={{
+          color: availability === "inStock" ? "green" : "red",
+        }}
+      >
+        {availability}
+      </span>
+    ),
+    align: "center",
+  },
+  {
+    title: "Publish Date",
+    dataIndex: "createdAt",
+    key: "createdAt",
+    render: (date) => dayjs(date).format("MMM DD, YYYY"),
+  },
+  {
+    title: "Action",
+    key: "action",
+    render: (_, record) => (
+      <Button type="link" onClick={() => console.log("View:", record)}>
+        View
+      </Button>
+    ),
+  },
+];
 
 const SELECT_OPTIONS = [
   { value: "jack", label: "Jack" },
@@ -21,12 +80,24 @@ const Page = () => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSelectChange = (value) => console.log(`Selected: ${value}`);
+  const { data: productData, isLoading } = useGetAllProductsQuery();
 
-  // Debounced search handler to improve performance
-  const handleInputChange = useCallback((event) => {
-    setSearchTerm(event.target.value);
-  }, []);
+  if (isLoading) {
+    return <h1>Loading...</h1>;
+  }
+
+  const products = productData?.data;
+  console.log(products);
+
+  // Search filter
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+  };
+
+  // Filtered Data
+  const filteredData = products.filter((item) =>
+    item.productName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <main className="p-6 bg-white flex flex-col gap-5 shadow-lg rounded-lg">
@@ -37,25 +108,17 @@ const Page = () => {
             <Select
               defaultValue="Default"
               className="w-[141px] h-[36px] border-red-500"
-              onChange={handleSelectChange}
               options={SELECT_OPTIONS}
             />
           </Space>
 
           {/* Search Input */}
-          <div className="relative px-3 py-1.5 border border-gray-200 rounded-lg w-[180px]">
-            <input
-              type="text"
-              className="w-full rounded-md focus:outline-none"
-              placeholder="Search"
-              aria-label="Search Products"
-              value={searchTerm}
-              onChange={handleInputChange}
-            />
-            <button type="button" className="absolute right-4 top-2" aria-label="Search">
-              <Image src="/icons/search.png" width={16} height={16} alt="Search Icon" />
-            </button>
-          </div>
+          <Search
+            placeholder="Search Products"
+            allowClear
+            onSearch={handleSearch}
+            className="w-[180px]"
+          />
         </div>
 
         {/* Add Product Button */}
@@ -68,7 +131,12 @@ const Page = () => {
       </div>
 
       {/* Product Table */}
-      <Table head={TABLE_HEAD} bodyData={productData} />
+      <Table
+        columns={TABLE_COLUMNS}
+        dataSource={filteredData}
+        rowKey="id"
+        pagination={{ pageSize: 10 }}
+      />
     </main>
   );
 };

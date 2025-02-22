@@ -12,10 +12,11 @@ import {
   LogOut,
   LayoutDashboard,
   UserCheck,
-  ChartBarStacked
+  ChartBarStacked,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import CustomProvider from "../../utils/CustomProvider";
 
 const menuItems = [
   { name: "Overview", icon: LayoutDashboard, link: "/" },
@@ -100,7 +101,9 @@ export default function RootLayout({ children }) {
           </aside>
 
           {/* Content */}
-          <div className="w-full">{children}</div>
+          <div className="w-full">
+            <CustomProvider>{children}</CustomProvider>
+          </div>
         </section>
       </body>
     </html>
