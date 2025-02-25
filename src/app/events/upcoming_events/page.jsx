@@ -1,6 +1,6 @@
 "use client";
 
-import { Table } from "antd";
+import { ConfigProvider, Table } from "antd";
 import dayjs from "dayjs";
 import { useGetEventsQuery } from "../../../redux/apiSlice/eventSlice";
 
@@ -69,7 +69,17 @@ export default function EventTable() {
         </div>
       </section>
 
-      <Table dataSource={events} columns={columns} />
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: {
+              headerBg: "#feedf7",
+            },
+          },
+        }}
+      >
+        <Table dataSource={events} columns={columns} />
+      </ConfigProvider>
     </div>
   );
 }
