@@ -1,27 +1,50 @@
 "use client";
 
+import { Button } from "antd";
 import Image from "next/image";
 import Link from "next/link";
+// import { useGetUserProfileQuery } from "../redux/apiSlice/authSlice";
 
-export default function Header() {
+const Header = () => {
+  // const { data: profileData, isLoading } = useGetUserProfileQuery();
+
+  // if (isLoading) {
+  //   return <h1>Loading...</h1>;
+  // }
+
+  // const profile = profileData?.data;
+  // console.log(profile);
+
   return (
     <header className="w-full select-none shadow-md bg-white h-[100px] flex items-center">
       <section className="container mx-auto flex items-center justify-between md:px-6 flex-wrap">
         {/* Logo */}
         <div>
-          <Link href={"/"}><Image src={"/icons/logo.png"} width={131} height={53} alt="website logo" /></Link>
+          <Link href={"/"}>
+            <Image
+              src={"/icons/logo.png"}
+              width={131}
+              height={53}
+              alt="website logo"
+            />
+          </Link>
         </div>
 
         {/* Notification & Profile */}
         <div className="flex items-center gap-4 sm:gap-6">
           {/* Notification Icon */}
           <div className="relative cursor-pointer bg-[#FDCFEB21] p-[10px] rounded-md">
-            <Image src={"/icons/bell.png"} width={24} height={24} alt="notification icon" />
+            <Image
+              src={"/icons/bell.png"}
+              width={24}
+              height={24}
+              alt="notification icon"
+            />
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </div>
 
           {/* Profile */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* <div className="flex items-center gap-2 sm:gap-3">
             <Image
               className="rounded-lg w-12 h-12 sm:w-14 sm:h-14"
               src={"/images/userProfile.png"}
@@ -33,10 +56,20 @@ export default function Header() {
               <p className="font-medium text-[#151D48] text-base">Musfiq</p>
               <p className="text-[#737791] text-sm font-normal">Admin</p>
             </div>
-            <Image src={"/icons/arrow.png"} width={16} height={16} alt="Arrow icon" />
-          </div>
+            <Image
+              src={"/icons/arrow.png"}
+              width={16}
+              height={16}
+              alt="Arrow icon"
+            />
+          </div> */}
+          <Link href={"/auth/login"}>
+            <Button>LogIn</Button>
+          </Link>
         </div>
       </section>
     </header>
   );
-}
+};
+
+export default Header;
