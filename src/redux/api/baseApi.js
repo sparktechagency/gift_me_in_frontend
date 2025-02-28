@@ -5,11 +5,11 @@ import Cookies from "js-cookie";
 // Enhanced base query to handle token refresh
 const baseQueryWithReauth = async (args, api, extraOptions) => {
   const baseQuery = fetchBaseQuery({
-    baseUrl: "http://10.0.70.188:8000/api/v1",
+    baseUrl: "http://10.0.70.188:5001/api/v1",
     prepareHeaders: (headers) => {
       const token =
-        localStorage.getItem("authToken") ||
-        sessionStorage.getItem("authToken");
+        localStorage.getItem("authenticationToken") ||
+        sessionStorage.getItem("authenticationToken");
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
@@ -43,9 +43,9 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 
       if (refreshResult?.data?.data) {
         // Save the new access token to localStorage
-        localStorage.removeItem("authToken");
+        localStorage.removeItem("authenticationToken");
         localStorage.setItem(
-          "authToken",
+          "authenticationToken",
           refreshResult?.data?.data?.accessToken
         );
 
@@ -54,9 +54,9 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
       } else {
         // Refresh token failed or expired, log out the user
         console.error("Refresh token invalid or expired. Logging out...");
-        localStorage.removeItem("authToken");
+        localStorage.removeItem("authenticationToken");
         localStorage.removeItem("refreshToken");
-        sessionStorage.removeItem("authToken");
+        sessionStorage.removeItem("authenticationToken");
         sessionStorage.removeItem("refreshToken");
         toast("Access token has expired, Please login again.");
         window.location.replace("/auth/login");
@@ -81,4 +81,4 @@ export const api = createApi({
   endpoints: () => ({}),
 });
 
-export const imageUrl = "http://10.0.70.188:8000/api/v1";
+export const imageUrl = "http://10.0.70.188:5001/api/v1";
