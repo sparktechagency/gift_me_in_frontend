@@ -1,265 +1,280 @@
 "use client";
-import { useRef, useState } from "react";
-import { motion } from "framer-motion";
-import Modal from "../../../../components/Modal";
-import InputField from "../../../../components/reusable/InputField";
-import TextAreaField from "../../../../components/reusable/TextAreaField";
-import TagsInput from "../../../../components/reusable/TagsInput";
-import SelectField from "../../../../components/reusable/SelectField";
-import FileUpload from "../../../../components/reusable/FileUpload";
-import RadioButton from "../../../../components/reusable/RadioButton";
 
-export default function ProductForm() {
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    additionalInfo: "",
-    category: "",
-    size: "",
-    colors: [],
-    tags: [],
-    regularPrice: "",
-    discountPrice: "",
-    availability: "in-stock",
-    featureImage: null,
-    additionalImages: null,
-  });
+import React from "react";
+import { Form, Input, Button, Select, Upload, message, Row, Col } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { useAddProductMutation } from "../../../../redux/apiSlice/productSlice";
+import toast from "react-hot-toast";
+import { useGetCategoriesQuery } from "../../../../redux/apiSlice/categorySlice";
+import { useRouter } from "next/navigation";
 
-  const [openResponsive, setOpenResponsive] = useState(false);
-  const [selectedColor, setSelectedColor] = useState(null);
-  const featureImageRef = useRef(null);
-  const additionalImagesRef = useRef(null);
+const { TextArea } = Input;
+const { Option } = Select;
 
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      description: "",
-      additionalInfo: "",
-      category: "",
-      size: "",
-      colors: [],
-      tags: [],
-      regularPrice: "",
-      discountPrice: "",
-      availability: "in-stock",
-      featureImage: null,
-      additionalImages: null,
-    });
+const AddProducts = () => {
+  const [form] = Form.useForm();
+  const { data: categories, isLoading: categoriesLoading } =
+    useGetCategoriesQuery();
+  const [addProduct] = useAddProductMutation();
+  const router = useRouter();
 
-    // Clear file inputs
-    if (featureImageRef.current) featureImageRef.current.value = "";
-    if (additionalImagesRef.current) additionalImagesRef.current.value = "";
-  };
+  if (categoriesLoading) {
+    return <h1>Loading...</h1>;
+  }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+  const categoriesList = categories?.data?.data;
+  console.log(categoriesList);
 
-  const handleTagChange = (newTags) => {
-    setFormData((prev) => ({ ...prev, tags: newTags }));
-  };
-
-  const handleColorSelect = (color) => {
-    setSelectedColor(selectedColor === color ? null : color);
-  };
-
-  const handleFileChange = (e, id) => {
-    const file = e?.target?.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        document.getElementById(id).src = reader.result;
-        document.getElementById(id).style.display = "block";
-      };
-      reader.readAsDataURL(file);
-      setFormData({
-        ...formData,
-        [id === "preview" ? "featureImage" : "additionalImages"]: file,
-      });
+  // Handle image upload validation
+  const beforeUpload = (file) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      message.error("You can only upload JPG/PNG files!");
     }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error("Image must be smaller than 2MB!");
+    }
+    return isJpgOrPng && isLt2M;
   };
 
-  const isFormValid = () => {
-    return (
-      formData.name &&
-      formData.description &&
-      formData.additionalInfo &&
-      formData.category &&
-      formData.size &&
-      formData.tags.length > 0 &&
-      formData.regularPrice &&
-      formData.availability &&
-      formData.featureImage
-    );
-  };
+  // Handle form submission
+  const onFinish = async (values) => {
+    const formData = new FormData();
+    try {
+      console.log(values);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isFormValid()) {
-      setOpenResponsive(true);
-    } else {
-      // alert("Please fill all required fields.");
+      // Append text fields to FormData
+      Object.keys(values).forEach((key) => {
+        if (key === "feature" || key === "additional") {
+          // Skip appending images here; they are handled separately below
+          return;
+        }
+        formData.append(key, values[key]);
+      });
+
+      // Append feature image
+      if (values.feature && values.feature.length > 0) {
+        formData.append("feature", values.feature[0].originFileObj);
+        // console.log("argbsdfhsrthb", values.feature[0].originFileObj);
+      }
+
+      // Append additional images
+      if (values.additional && values.additional.length > 0) {
+        values.additional.forEach((file, index) => {
+          formData.append(`additional`, file.originFileObj);
+        });
+      }
+
+      // Call the API mutation with FormData
+      const res = await addProduct(formData).unwrap();
+      console.log(res);
+      if (res?.success) {
+        toast.success("Product added successfully!");
+        router.push("/product");
+      } else {
+        toast.error("Failed to add product!");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to add product!");
     }
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <form onSubmit={handleSubmit} className="flex gap-4 p-6 rounded-2xl">
-        <div className="w-[504px] space-y-4 bg-white shadow-lg p-6 rounded-lg">
-          <InputField
-            label="Product Name"
-            name="name"
-            placeholder="Enter product name"
-            value={formData.name}
-            onChange={handleInputChange}
-          />
+    <div className="p-8 bg-pink-50 min-h-screen">
+      <h1 className="text-3xl font-bold text-center mb-8 text-pink-600">
+        Add New Product
+      </h1>
+      <Form
+        form={form}
+        name="add_product"
+        onFinish={onFinish}
+        layout="vertical"
+        className="w-full mx-auto bg-white p-8 rounded-lg shadow-md"
+      >
+        {/* Two-column layout using Ant Design Row and Col */}
+        <Row gutter={24}>
+          {/* Left Column */}
+          <Col span={12}>
+            {/* Product Name */}
+            <Form.Item
+              label="Product Name"
+              name="productName"
+              rules={[
+                { required: true, message: "Please input the product name!" },
+              ]}
+            >
+              <Input placeholder="Enter product name" />
+            </Form.Item>
 
-          <TextAreaField
-            label="Description"
-            name="description"
-            placeholder="Write product description"
-            value={formData.description}
-            onChange={handleInputChange}
-          />
+            {/* Description */}
+            <Form.Item
+              label="Description"
+              name="description"
+              rules={[
+                { required: true, message: "Please input the description!" },
+              ]}
+            >
+              <TextArea rows={4} placeholder="Enter product description" />
+            </Form.Item>
 
-          <TextAreaField
-            label="Additional Information"
-            name="additionalInfo"
-            placeholder="Write additional information"
-            value={formData.additionalInfo}
-            onChange={handleInputChange}
-          />
+            {/* Product Category */}
+            <Form.Item
+              label="Product Category"
+              name="productCategory"
+              rules={[{ required: true, message: "Please select a category!" }]}
+            >
+              <Select placeholder="Select a category">
+                {categoriesList?.map((category) => (
+                  <Option key={category._id} value={category._id}>
+                    {category.categoryName}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
 
-          <SelectField
-            label="Product Category"
-            name="category"
-            placeholder="Product Category"
-            value={formData.category}
-            onChange={handleInputChange}
-            options={[
-              { value: "Electronics", label: "Electronics" },
-              { value: "Fashion", label: "Fashion" },
-              { value: "Home", label: "Home" },
-            ]}
-          />
+            {/* Size (Array of Strings) */}
+            <Form.Item
+              label="Size"
+              name="size"
+              rules={[
+                { required: true, message: "Please input at least one size!" },
+              ]}
+            >
+              <Select mode="tags" placeholder="Enter sizes (e.g., S, M, L)" />
+            </Form.Item>
 
-          <SelectField
-            label="Size"
-            name="size"
-            placeholder="Size"
-            value={formData.size}
-            onChange={handleInputChange}
-            options={[
-              { value: "Small", label: "Small" },
-              { value: "Medium", label: "Medium" },
-              { value: "Large", label: "Large" },
-            ]}
-          />
-
-          <div>
-            <label className="block">
-              Color <span className="text-red-500">*</span>
-            </label>
-            <div className="flex space-x-2">
-              {["blue", "green", "purple", "yellow", "red"].map((color) => (
-                <button
-                  key={color}
-                  className={`w-6 h-6 rounded-full border ${
-                    selectedColor === color ? "ring-2 ring-gray-600" : ""
-                  }`}
-                  style={{ backgroundColor: color }}
-                  onClick={() => handleColorSelect(color)}
-                />
-              ))}
-            </div>
-          </div>
-
-          <TagsInput
-            label="Tags"
-            name="tags"
-            value={formData.tags}
-            onChange={handleTagChange}
-          />
-        </div>
-
-        <div className="w-[504px]">
-          <div className="space-y-6 bg-white shadow-lg p-6 rounded-lg">
-            <div className="flex items-center gap-6">
-              <FileUpload
-                label="Feature Image"
-                id="preview"
-                onChange={handleFileChange}
-                ref={featureImageRef}
+            {/* Color (Array of Strings) */}
+            <Form.Item
+              label="Color"
+              name="color"
+              rules={[
+                { required: true, message: "Please input at least one color!" },
+              ]}
+            >
+              <Select
+                mode="tags"
+                placeholder="Enter colors (e.g., Red, Blue)"
               />
-              <FileUpload
-                label="Additional Images"
-                id="additionalPreview"
-                onChange={handleFileChange}
-                ref={additionalImagesRef}
-              />
-            </div>
+            </Form.Item>
 
-            <InputField
+            {/* Tag (Array of Strings) */}
+            <Form.Item
+              label="Tags"
+              name="tag"
+              rules={[
+                { required: true, message: "Please input at least one tag!" },
+              ]}
+            >
+              <Select mode="tags" placeholder="Enter tags (e.g., New, Sale)" />
+            </Form.Item>
+          </Col>
+
+          {/* Right Column */}
+          <Col span={12}>
+            {/* Feature Image */}
+            <Form.Item
+              label="Feature Image"
+              name="feature"
+              rules={[
+                { required: true, message: "Please upload a feature image!" },
+              ]}
+              valuePropName="fileList"
+              getValueFromEvent={(e) => e?.fileList}
+            >
+              <Upload
+                listType="picture-card"
+                beforeUpload={beforeUpload}
+                maxCount={1}
+              >
+                <div>
+                  <PlusOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </div>
+              </Upload>
+            </Form.Item>
+
+            {/* Additional Images */}
+            <Form.Item
+              label="Additional Images"
+              name="additional"
+              rules={[
+                {
+                  required: false,
+                  message: "Please upload additional images!",
+                },
+              ]}
+              valuePropName="fileList"
+              getValueFromEvent={(e) => e?.fileList}
+            >
+              <Upload
+                listType="picture-card"
+                beforeUpload={beforeUpload}
+                multiple
+              >
+                <div>
+                  <PlusOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </div>
+              </Upload>
+            </Form.Item>
+
+            {/* Regular Price */}
+            <Form.Item
               label="Regular Price"
               name="regularPrice"
-              type="number"
-              placeholder="Enter Regular Price"
-              value={formData.regularPrice}
-              onChange={handleInputChange}
-            />
-
-            <InputField
-              label="Discount Price"
-              name="discountPrice"
-              type="number"
-              placeholder="Enter Discount Price"
-              value={formData.discountPrice}
-              onChange={handleInputChange}
-            />
-
-            <div className="flex flex-col gap-2">
-              <label className="block text-base leading-[24px]">
-                Availability<span className="text-[#F82BA9]">*</span>
-              </label>
-              <div className="flex flex-col gap-[5px]">
-                <RadioButton
-                  label="In Stock"
-                  name="availability"
-                  value="in-stock"
-                  checked={formData.availability === "in-stock"}
-                  onChange={handleInputChange}
-                />
-                <RadioButton
-                  label="Out of Stock"
-                  name="availability"
-                  value="out-of-stock"
-                  checked={formData.availability === "out-of-stock"}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
-          </div>
-          <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
-          <div className="flex justify-end space-x-4 pt-4">
-            <button
-              type="button"
-              className="px-10 py-2 border text-base border-[#F82BA9] rounded-md text-[#F82BA9] transition-all duration-200"
+              rules={[
+                { required: true, message: "Please input the regular price!" },
+              ]}
             >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              onClick={() => setModalOpen(true)}
-              className={`px-6 py-2 bg-[#F82BA9] text-base text-white rounded-md transition-all duration-200 
-              }`}
+              <Input type="number" placeholder="Enter regular price" />
+            </Form.Item>
+
+            {/* Discounted Price */}
+            <Form.Item
+              label="Discounted Price"
+              name="discountedPrice"
+              rules={[
+                {
+                  required: false,
+                  message: "Please input the discounted price!",
+                },
+              ]}
             >
-              Publish Product
-            </button>
-          </div>
-        </div>
-      </form>
-    </motion.div>
+              <Input type="number" placeholder="Enter discounted price" />
+            </Form.Item>
+
+            {/* Availability */}
+            <Form.Item
+              label="Availability"
+              name="availability"
+              rules={[
+                { required: true, message: "Please select availability!" },
+              ]}
+            >
+              <Select placeholder="Select availability">
+                <Option value="inStock">In Stock</Option>
+                <Option value="outOfStock">Out of Stock</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+
+        {/* Submit Button */}
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            className="bg-pink-600 !py-5 hover:bg-pink-700"
+          >
+            Add Product
+          </Button>
+        </Form.Item>
+      </Form>
+    </div>
   );
-}
+};
+
+export default AddProducts;

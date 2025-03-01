@@ -2,11 +2,15 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
-
-import Table from "../../../components/Table";
-import { CategoryData } from "../../../../utils/CustomData";
-
-const CATEGORY_HEAD = ["Image", "Category", "Stock", "Action"];
+import {
+  useCreateCategoryMutation,
+  useDeleteCategoryMutation,
+  useGetCategoriesQuery,
+} from "../../../redux/apiSlice/categorySlice";
+import { Space, Table } from "antd";
+import { imageUrl } from "../../../redux/api/baseApi";
+import { MdDelete } from "react-icons/md";
+import toast from "react-hot-toast";
 
 const InputField = ({
   label,
@@ -93,6 +97,17 @@ const Page = () => {
   const featureImageRef = useRef(null);
   const [formData, setFormData] = useState({ name: "", featureImage: null });
 
+  const { data: categories, isLoading } = useGetCategoriesQuery();
+  const [createCategory] = useCreateCategoryMutation();
+  const [deleteCategory] = useDeleteCategoryMutation();
+
+  if (isLoading) {
+    return <h1>Loading...</h1>;
+  }
+
+  const categoriesList = categories?.data?.data;
+  console.log(categoriesList);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -111,18 +126,86 @@ const Page = () => {
     }
 
     const data = new FormData();
-    data.append("name", formData.name);
-    data.append("featureImage", formData.featureImage);
+    data.append("categoryName", formData.name);
+    data.append("image", formData.featureImage);
 
-    console.log(formData);
+    try {
+      const res = await createCategory(data).unwrap();
+      console.log(res);
+      if (res?.success) {
+        toast.success(res?.message);
+        setFormData({ name: "", featureImage: null });
+        setFilePreview(null);
+      } else {
+        toast.error(res?.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await deleteCategory(id).unwrap();
+      if (res?.success) {
+        toast.success(res?.message);
+      } else {
+        toast.error(res?.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const columns = [
+    {
+      title: "Image",
+      dataIndex: "image",
+      key: "image",
+      render: (image) => (
+        <img
+          src={image?.startsWith("http") ? image : `${imageUrl}/${image}`}
+          alt="Category"
+          className="w-10 h-10"
+        />
+      ),
+    },
+    {
+      title: "Name",
+      dataIndex: "categoryName",
+      key: "categoryName",
+    },
+    {
+      title: "Total Products",
+      dataIndex: "totalProducts",
+      key: "totalProducts",
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <MdDelete
+            className="cursor-pointer text-red-500"
+            onClick={() => handleDelete(record._id)}
+            size={24}
+          />
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <section className="flex gap-3">
       {/* Categories Table */}
       <div className="p-6 w-full shadow-lg flex flex-col gap-6">
         <h3 className="text-[#160E4B] font-medium text-2xl">Category</h3>
-        <Table bodyData={CategoryData} head={CATEGORY_HEAD} />
+        <Table
+          dataSource={categoriesList}
+          columns={columns}
+          rowKey="_id"
+          pagination={{ pageSize: 5 }}
+        />
       </div>
 
       {/* Add Category Form */}

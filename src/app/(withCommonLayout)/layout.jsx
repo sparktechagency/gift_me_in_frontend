@@ -2,7 +2,7 @@
 import React from "react";
 import "./globals.css";
 import Header from "../../components/Header";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Calendar,
   ShoppingCart,
@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import CustomProvider from "../../../utils/CustomProvider";
+import AuthGuard from "../../components/ui/auth/AuthGuard";
 
 const menuItems = [
   { name: "Overview", icon: LayoutDashboard, link: "/" },
@@ -25,12 +25,21 @@ const menuItems = [
   { name: "Product", icon: Box, link: "/product" },
   { name: "category", icon: ChartBarStacked, link: "/category" },
   { name: "Subscribers", icon: UserCheck, link: "/subscribers" },
-  { name: "Transactions", icon: CreditCard, link: "/transactions" },
+
   { name: "Settings", icon: Settings, link: "/settings/admin" },
 ];
 
 export default function RootLayout({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem("authenticationToken") ||
+      sessionStorage.removeItem("authenticationToken");
+    localStorage.removeItem("role") || sessionStorage.removeItem("role");
+    router.push("/login");
+  };
+
   return (
     <div>
       <Header />
@@ -88,7 +97,7 @@ export default function RootLayout({ children }) {
               {/* Logout Button */}
               <li>
                 <button
-                  onClick={() => console.log("Logout function here")}
+                  onClick={() => handleLogout()}
                   className="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg"
                 >
                   <LogOut size={20} className="text-pink-500" />
@@ -100,7 +109,9 @@ export default function RootLayout({ children }) {
         </aside>
 
         {/* Content */}
-        <div className="w-full">{children}</div>
+        <div className="w-full">
+          <AuthGuard>{children}</AuthGuard>
+        </div>
       </section>
     </div>
   );

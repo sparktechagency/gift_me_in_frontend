@@ -17,7 +17,21 @@ const eventApi = api.injectEndpoints({
       }),
       providesTags: ["event"],
     }),
+
+    //subscribe
+
+    getAllSubscribers: builder.query({
+      query: () => ({
+        url: "package/all-subscriptions",
+        method: "GET",
+      }),
+      providesTags: ["subscriber"],
+    }),
   }),
 });
 
-export const { useCreateEventMutation, useGetEventsQuery } = eventApi;
+export const {
+  useCreateEventMutation,
+  useGetEventsQuery,
+  useGetAllSubscribersQuery,
+} = eventApi;

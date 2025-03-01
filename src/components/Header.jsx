@@ -3,17 +3,18 @@
 import { Button } from "antd";
 import Image from "next/image";
 import Link from "next/link";
-// import { useGetUserProfileQuery } from "../redux/apiSlice/authSlice";
+import { useGetUserProfileQuery } from "../redux/apiSlice/authSlice";
+import { imageUrl } from "../redux/api/baseApi";
 
 const Header = () => {
-  // const { data: profileData, isLoading } = useGetUserProfileQuery();
+  const { data: profileData, isLoading } = useGetUserProfileQuery();
 
-  // if (isLoading) {
-  //   return <h1>Loading...</h1>;
-  // }
+  if (isLoading) {
+    return <h1>Loading...</h1>;
+  }
 
-  // const profile = profileData?.data;
-  // console.log(profile);
+  const profile = profileData?.data;
+  console.log(profile);
 
   return (
     <header className="w-full select-none shadow-md bg-white h-[100px] flex items-center">
@@ -44,28 +45,33 @@ const Header = () => {
           </div>
 
           {/* Profile */}
-          {/* <div className="flex items-center gap-2 sm:gap-3">
-            <Image
-              className="rounded-lg w-12 h-12 sm:w-14 sm:h-14"
-              src={"/images/userProfile.png"}
-              width={60}
-              height={60}
-              alt="profile"
-            />
-            <div className="text-sm">
-              <p className="font-medium text-[#151D48] text-base">Musfiq</p>
-              <p className="text-[#737791] text-sm font-normal">Admin</p>
+          {profile?.role === "admin" || profile?.role === "SUPER_ADMIN" ? (
+            <div className="flex items-center border-2 pe-5 rounded-full gap-2 sm:gap-3">
+              <Image
+                className="rounded-lg w-12 h-12 sm:w-14 sm:h-14"
+                src={
+                  profile?.image?.startsWith("http")
+                    ? profile?.image
+                    : `${imageUrl}/${profile?.image}`
+                }
+                width={60}
+                height={60}
+                alt="profile"
+              />
+              <div className="text-sm">
+                <p className="font-medium text-[#151D48] text-base">
+                  {profile?.name}
+                </p>
+                <p className="text-[#737791] text-sm font-normal">
+                  {profile?.role}
+                </p>
+              </div>
             </div>
-            <Image
-              src={"/icons/arrow.png"}
-              width={16}
-              height={16}
-              alt="Arrow icon"
-            />
-          </div> */}
-          <Link href={"/auth/login"}>
-            <Button>LogIn</Button>
-          </Link>
+          ) : (
+            <Link href={"/login"}>
+              <Button>LogIn</Button>
+            </Link>
+          )}
         </div>
       </section>
     </header>
