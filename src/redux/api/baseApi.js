@@ -4,7 +4,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://rakib5001.binarybards.online/api/v1/",
+    // baseUrl: "https://rakib5001.binarybards.online/api/v1/",
+    baseUrl: "http://139.59.0.25:6008/api/v1/",
     prepareHeaders: (headers) => {
       const token =
         localStorage.getItem("authenticationToken") ||
@@ -19,4 +20,5 @@ export const api = createApi({
   endpoints: () => ({}),
 });
 
-export const imageUrl = "https://rakib5001.binarybards.online";
+// export const imageUrl = "https://rakib5001.binarybards.online";
+export const imageUrl = "http://139.59.0.25:6008";
