@@ -12,8 +12,8 @@ export default function EventLayout({ children }) {
       {/* Navigation Bar */}
       <div className="flex justify-start gap-6 bg-white p-4">
         {[
-          { name: "Admin", path: "/settings/admin" },
           { name: "Password", path: "/settings/admin/password" },
+          // { name: "Admin", path: "/settings/admin" },
         ].map((item) => (
           <Link
             key={item.path}
@@ -30,9 +30,7 @@ export default function EventLayout({ children }) {
       </div>
 
       {/* Content Area */}
-      <div className="">
-        {children}
-      </div>
+      <div className="">{children}</div>
     </div>
   );
 }

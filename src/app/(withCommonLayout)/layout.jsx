@@ -26,7 +26,7 @@ const menuItems = [
   { name: "category", icon: ChartBarStacked, link: "/category" },
   { name: "Subscribers", icon: UserCheck, link: "/subscribers" },
 
-  { name: "Settings", icon: Settings, link: "/settings/admin" },
+  { name: "Settings", icon: Settings, link: "/settings/admin/password" },
 ];
 
 export default function RootLayout({ children }) {
