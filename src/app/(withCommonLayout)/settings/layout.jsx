@@ -13,7 +13,7 @@ export default function EventLayout({ children }) {
       <div className="flex justify-start gap-6 bg-white p-4">
         {[
           { name: "Password", path: "/settings/admin/password" },
-          // { name: "Admin", path: "/settings/admin" },
+          { name: "Admin", path: "/settings/admin" },
         ].map((item) => (
           <Link
             key={item.path}

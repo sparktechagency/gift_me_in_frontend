@@ -3,11 +3,17 @@ import React, { useState, useCallback } from "react";
 import Image from "next/image";
 import Table from "../../../../components/Table";
 import { AdminData } from "../../../../../utils/CustomData";
+import { useGetAllAdminQuery } from "../../../../redux/apiSlice/authSlice";
 
 const TableHead = ["Name", "Email", "Role", "Created Date", "Action"];
 
 const Page = () => {
   const [searchTerm, setSearchTerm] = useState("");
+
+  const { data: adminData, isLoading } = useGetAllAdminQuery();
+
+  const admins = adminData?.data;
+  console.log(admins);
 
   const handleInputChange = useCallback((event) => {
     setSearchTerm(event.target.value);

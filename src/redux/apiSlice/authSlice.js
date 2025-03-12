@@ -42,6 +42,14 @@ const authApi = api.injectEndpoints({
       }),
       invalidatesTags: ["userProfile"],
     }),
+
+    getAllAdmin: builder.query({
+      query: () => ({
+        url: "/user/admins",
+        method: "GET",
+      }),
+      providesTags: ["admin"],
+    }),
   }),
 });
 
@@ -51,4 +59,5 @@ export const {
   useChangePasswordMutation,
   useGetUserProfileQuery,
   useUpdateUserProfileMutation,
+  useGetAllAdminQuery,
 } = authApi;
