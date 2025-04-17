@@ -9,6 +9,9 @@ import { imageUrl } from "../redux/api/baseApi";
 const Header = () => {
   const { data: profileData, isLoading } = useGetUserProfileQuery();
 
+  // const isLoading = false;
+  // const profileData = [];
+
   if (isLoading) {
     return <h1>Loading...</h1>;
   }

@@ -21,11 +21,12 @@ import AuthGuard from "../../components/ui/auth/AuthGuard";
 const menuItems = [
   { name: "Overview", icon: LayoutDashboard, link: "/" },
   { name: "Events", icon: Calendar, link: "/events/upcoming_events" },
+  { name: "Users", icon: Calendar, link: "/users" },
   { name: "Order", icon: ShoppingCart, link: "/order" },
   { name: "Product", icon: Box, link: "/product" },
-  { name: "category", icon: ChartBarStacked, link: "/category" },
+  { name: "Category", icon: ChartBarStacked, link: "/category" },
+  { name: "Package", icon: CreditCard, link: "/package" },
   { name: "Subscribers", icon: UserCheck, link: "/subscribers" },
-
   { name: "Settings", icon: Settings, link: "/settings/admin/password" },
 ];
 

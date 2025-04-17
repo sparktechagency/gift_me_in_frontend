@@ -5,8 +5,9 @@ export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     // baseUrl: "https://rakib5001.binarybards.online/api/v1/",
-    // baseUrl: "http://10.0.70.188:5001/api/v1/",
-    baseUrl: "http://139.59.0.25:6008/api/v1/",
+    baseUrl: "http://10.0.70.188:5004/api/v1/",
+    // baseUrl: "https://c123-115-127-157-41.ngrok-free.app/api/v1/",
+    // baseUrl: "http://139.59.0.25:6008/api/v1/",
     prepareHeaders: (headers) => {
       const token =
         localStorage.getItem("authenticationToken") ||
@@ -17,9 +18,11 @@ export const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ["product", "event"],
+  tagTypes: ["product", "event", "package"],
   endpoints: () => ({}),
 });
 
 // export const imageUrl = "https://rakib5001.binarybards.online";
-export const imageUrl = "http://139.59.0.25:6008";
+// export const imageUrl = "https://c123-115-127-157-41.ngrok-free.app";
+export const imageUrl = "http://10.0.70.188:5004";
+// export const imageUrl = "http://139.59.0.25:6008";
