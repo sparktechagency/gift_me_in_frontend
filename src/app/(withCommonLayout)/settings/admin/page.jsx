@@ -33,8 +33,18 @@ const Page = () => {
   const handleCancel = () => setIsModalOpen(false);
 
   const handleAddAdmin = async (values) => {
+    console.log(values);
+
+    const data = {
+      name: values.name,
+      email: values.email,
+      phone: values.phone,
+      password: values.password,
+      role: "ADMIN",
+    };
+
     try {
-      await createAdmin(values).unwrap();
+      await createAdmin(data).unwrap();
       toast.success("Admin added successfully");
       form.resetFields();
       setIsModalOpen(false);

@@ -48,7 +48,7 @@ const Header = () => {
           </div>
 
           {/* Profile */}
-          {profile?.role === "admin" || profile?.role === "SUPER_ADMIN" ? (
+          {profile?.role === "ADMIN" || profile?.role === "SUPER_ADMIN" ? (
             <div className="flex items-center border-2 pe-5 rounded-full gap-2 sm:gap-3">
               <Image
                 className="rounded-lg w-12 h-12 sm:w-14 sm:h-14"

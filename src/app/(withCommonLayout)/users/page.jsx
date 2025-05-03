@@ -1,10 +1,25 @@
 "use client";
-import { ConfigProvider, Space, Table, Modal, Form, Input } from "antd";
+import {
+  ConfigProvider,
+  Space,
+  Table,
+  Modal,
+  Form,
+  Input,
+  Tooltip,
+  Select,
+  Switch,
+  Upload,
+  message as antMessage,
+} from "antd";
 import {
   useAllUsersDataQuery,
   useDeleteUserMutation,
+  useUpdateUserMutation,
 } from "../../../redux/apiSlice/userSlice";
-import { FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaClipboardQuestion } from "react-icons/fa6";
+import { UploadOutlined } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { useSignUpMutation } from "../../../redux/apiSlice/authSlice";
@@ -12,17 +27,46 @@ import { useSignUpMutation } from "../../../redux/apiSlice/authSlice";
 const UsersPage = () => {
   const { data: usersData, isLoading, refetch } = useAllUsersDataQuery();
   const [deleteUser] = useDeleteUserMutation();
+  const [updateUser] = useUpdateUserMutation();
   const [registerUser] = useSignUpMutation();
   const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [fileList, setFileList] = useState([]);
+  const [imageUrl, setImageUrl] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [form] = Form.useForm();
+  const [editForm] = Form.useForm();
 
   // Update filtered data when userDetails changes
   useEffect(() => {
     setFilteredData(usersData?.data || []);
   }, [usersData?.data]);
+
+  // Set form values when selectedUser changes
+  useEffect(() => {
+    if (selectedUser && isEditModalOpen) {
+      editForm.setFieldsValue({
+        name: selectedUser.name,
+        email: selectedUser.email,
+        phone: selectedUser.phone,
+        status: selectedUser.status || "active",
+        verified: selectedUser.verified || false,
+      });
+
+      // Set image preview if available
+      if (selectedUser.image) {
+        setImageUrl(selectedUser.image);
+      } else {
+        setImageUrl("");
+      }
+
+      // Reset file list
+      setFileList([]);
+    }
+  }, [selectedUser, isEditModalOpen, editForm]);
 
   if (isLoading) return <p>Loading...</p>;
   const userDetails = usersData?.data;
@@ -57,6 +101,98 @@ const UsersPage = () => {
     }
   };
 
+  const handleEdit = (record) => {
+    setSelectedUser(record);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateUser = async (values) => {
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+
+      // Add user ID
+      formData.append("id", selectedUser._id);
+
+      // Add all form values to FormData
+      // Append all values except image
+      Object.entries(values).forEach(([key, value]) => {
+        if (key !== "image") {
+          formData.append(key, value);
+        }
+      });
+
+      // Add image file if exists
+      if (fileList.length > 0) {
+        formData.append("image", fileList[0].originFileObj);
+      }
+
+      // Log FormData entries for debugging (optional)
+      // for (let pair of formData.entries()) {
+      //   console.log(pair[0] + ': ' + pair[1]);
+      // }
+
+      const res = await updateUser(formData).unwrap();
+      if (res?.success) {
+        toast.success("User updated successfully");
+        setIsEditModalOpen(false);
+        // Reset upload state
+        setFileList([]);
+        setImageUrl("");
+        // Update selected user with new data
+        setSelectedUser((prev) => ({
+          ...prev,
+          image: res.data.image || prev.image,
+          ...values,
+        }));
+        refetch();
+      } else {
+        toast.error(res?.message || "Failed to update user");
+      }
+    } catch (err) {
+      toast.error(err?.data?.message || "Something went wrong!");
+    }
+  };
+
+  // Image upload props
+  const uploadProps = {
+    beforeUpload: (file) => {
+      const isImage = file.type.startsWith("image/");
+      if (!isImage) {
+        antMessage.error("You can only upload image files!");
+        return Upload.LIST_IGNORE;
+      }
+
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isLt2M) {
+        antMessage.error("Image must be smaller than 2MB!");
+        return Upload.LIST_IGNORE;
+      }
+
+      // Update fileList
+      setFileList([file]);
+
+      // Create proper UploadFile object
+      const uploadFile = {
+        uid: Date.now().toString(),
+        name: file.name,
+        status: "done",
+        originFileObj: file,
+      };
+
+      setFileList([uploadFile]);
+
+      // Prevent automatic upload
+      return false;
+    },
+    fileList,
+    onRemove: () => {
+      setFileList([]);
+      setImageUrl("");
+    },
+    maxCount: 1,
+  };
+
   // Table columns configuration
   const columns = [
     {
@@ -71,7 +207,11 @@ const UsersPage = () => {
       key: "image",
       render: (image) => (
         <img
-          src={image}
+          src={
+            image?.startsWith("http")
+              ? image
+              : `http://10.0.70.188:5004${image}`
+          }
           alt="User"
           style={{ width: "50px", height: "50px", borderRadius: "50%" }}
         />
@@ -105,6 +245,17 @@ const UsersPage = () => {
       key: "action",
       render: (_, record) => (
         <Space>
+          <Tooltip title={"Edit User"}>
+            <FaEdit
+              className="text-xl cursor-pointer"
+              onClick={() => handleEdit(record)}
+            />
+          </Tooltip>
+
+          <Tooltip title={"Survey Questions"}>
+            <FaClipboardQuestion className="text-xl text-blue-600 cursor-pointer" />
+          </Tooltip>
+
           <FaTrash
             onClick={() => handleDelete(record?._id)}
             className="text-red-600 cursor-pointer"
@@ -178,6 +329,7 @@ const UsersPage = () => {
         />
       </ConfigProvider>
 
+      {/* Add User Modal */}
       <Modal
         title="Add New User"
         open={isModalOpen}
@@ -242,6 +394,114 @@ const UsersPage = () => {
                 className="px-4 py-2 bg-[#EC4899] text-white rounded-md"
               >
                 Submit
+              </button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Edit User Modal */}
+      <Modal
+        title="Edit User"
+        open={isEditModalOpen}
+        onCancel={() => {
+          setIsEditModalOpen(false);
+          setFileList([]);
+          setImageUrl("");
+        }}
+        footer={null}
+      >
+        <Form
+          form={editForm}
+          layout="vertical"
+          onFinish={handleUpdateUser}
+          className="mt-4"
+        >
+          <Form.Item
+            label="Name"
+            name="name"
+            rules={[{ required: true, message: "Please input user name!" }]}
+          >
+            <Input placeholder="Enter name" />
+          </Form.Item>
+
+          <Form.Item label="Profile Image" name="image">
+            <div className="flex flex-col items-center space-y-4">
+              {imageUrl && (
+                <div className="mb-2">
+                  <img
+                    src={imageUrl}
+                    alt="Profile Preview"
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                    }}
+                  />
+                </div>
+              )}
+              <Upload {...uploadProps}>
+                <button
+                  type="button"
+                  className="px-4 py-2 border rounded-md flex items-center"
+                >
+                  <UploadOutlined className="mr-2" />
+                  {imageUrl ? "Change Image" : "Upload Image"}
+                </button>
+              </Upload>
+            </div>
+          </Form.Item>
+
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: "Please input email!" },
+              { type: "email", message: "Please enter a valid email!" },
+            ]}
+          >
+            <Input placeholder="Enter email" />
+          </Form.Item>
+
+          <Form.Item
+            label="Phone Number"
+            name="phone"
+            rules={[{ required: true, message: "Please input phone number!" }]}
+          >
+            <Input placeholder="Enter phone number" />
+          </Form.Item>
+
+          <Form.Item
+            label="Status"
+            name="status"
+            rules={[{ required: true, message: "Please select status!" }]}
+          >
+            <Select>
+              <Select.Option value="active">Active</Select.Option>
+              <Select.Option value="inactive">Inactive</Select.Option>
+              <Select.Option value="blocked">Blocked</Select.Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="Verified" name="verified" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+
+          <Form.Item className="flex justify-end mb-0">
+            <Space>
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                className="px-4 py-2 border rounded-md"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-[#EC4899] text-white rounded-md"
+              >
+                Update
               </button>
             </Space>
           </Form.Item>

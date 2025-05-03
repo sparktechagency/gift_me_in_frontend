@@ -15,6 +15,11 @@ export default function AuthGuard({ children }) {
       localStorage.getItem("authenticationToken") ||
       sessionStorage.getItem("authenticationToken");
 
+    const userRole =
+      localStorage.getItem("role") || sessionStorage.getItem("role");
+
+      
+
     if (!authenticationToken) {
       router.push("/login");
     } else {

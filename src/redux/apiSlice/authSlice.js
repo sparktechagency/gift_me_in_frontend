@@ -4,7 +4,15 @@ const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (data) => ({
-        url: "/auth/login",
+        url: "/auth/admin-login",
+        method: "POST",
+        body: data,
+      }),
+    }),
+
+    verifyEmail: builder.mutation({
+      query: (data) => ({
+        url: "/auth/verify-email",
         method: "POST",
         body: data,
       }),
@@ -72,6 +80,7 @@ const authApi = api.injectEndpoints({
 
 export const {
   useLoginMutation,
+  useVerifyEmailMutation,
   useSignUpMutation,
   useChangePasswordMutation,
   useGetUserProfileQuery,

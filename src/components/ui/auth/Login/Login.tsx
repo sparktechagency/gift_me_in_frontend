@@ -18,6 +18,11 @@ const Login = () => {
     console.log(values);
     try {
       const res = await login(values).unwrap();
+
+      if (res?.data?.role !== "ADMIN" && res?.data?.role !== "SUPER_ADMIN") {
+        toast.error("You are not authorized to access this page");
+        return;
+      }
       if (res?.success) {
         if (remember) {
           localStorage.setItem("authenticationToken", res?.data?.createToken);
@@ -28,13 +33,17 @@ const Login = () => {
         }
         toast.success(res?.message);
         setTimeout(() => {
-          router.replace("/");
+          if (res?.data?.role === "ADMIN") {
+            router.replace(`/verifyOTP?email=${values.email}`);
+          } else {
+            router.replace("/");
+          }
         }, 500);
       } else {
-        toast.error(res?.message);
+        toast.error(res?.data?.message);
       }
     } catch (error) {
-      console.log(error);
+      toast.error(error?.data?.message);
     }
   };
 
