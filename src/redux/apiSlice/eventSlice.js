@@ -27,6 +27,16 @@ const eventApi = api.injectEndpoints({
       }),
       providesTags: ["subscriber"],
     }),
+
+    // survey
+
+    getSurveyQuestionsById: builder.query({
+      query: (id) => ({
+        url: `survey/single/${id}`,
+        method: "GET",
+      }),
+      providesTags: ["survey"],
+    }),
   }),
 });
 
@@ -34,4 +44,5 @@ export const {
   useCreateEventMutation,
   useGetEventsQuery,
   useGetAllSubscribersQuery,
+  useGetSurveyQuestionsByIdQuery,
 } = eventApi;

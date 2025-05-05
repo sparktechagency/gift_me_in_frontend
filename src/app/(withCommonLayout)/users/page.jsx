@@ -23,6 +23,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { useSignUpMutation } from "../../../redux/apiSlice/authSlice";
+import { useGetSurveyQuestionsByIdQuery } from "../../../redux/apiSlice/eventSlice";
 
 const UsersPage = () => {
   const { data: usersData, isLoading, refetch } = useAllUsersDataQuery();
@@ -36,16 +37,23 @@ const UsersPage = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSurveyModalOpen, setIsSurveyModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedSurvey, setSelectedSurvey] = useState(null);
   const [form] = Form.useForm();
   const [editForm] = Form.useForm();
 
-  // Update filtered data when userDetails changes
+  console.log("asdvfsdv", selectedSurvey);
+
+  const { data: surveyQuestion, isLoading: surveyQuestionLoading } =
+    useGetSurveyQuestionsByIdQuery(selectedUser?._id, {
+      skip: !selectedUser?._id,
+    });
+
   useEffect(() => {
     setFilteredData(usersData?.data || []);
   }, [usersData?.data]);
 
-  // Set form values when selectedUser changes
   useEffect(() => {
     if (selectedUser && isEditModalOpen) {
       editForm.setFieldsValue({
@@ -56,20 +64,31 @@ const UsersPage = () => {
         verified: selectedUser.verified || false,
       });
 
-      // Set image preview if available
       if (selectedUser.image) {
         setImageUrl(selectedUser.image);
       } else {
         setImageUrl("");
       }
-
-      // Reset file list
       setFileList([]);
     }
   }, [selectedUser, isEditModalOpen, editForm]);
 
+  useEffect(() => {
+    if (surveyQuestion?.data && isSurveyModalOpen) {
+      setSelectedSurvey(surveyQuestion.data);
+    }
+  }, [surveyQuestion?.data, isSurveyModalOpen]);
+
+  useEffect(() => {
+    if (!isSurveyModalOpen) {
+      setSelectedSurvey(null);
+    }
+  }, [isSurveyModalOpen]);
+
   if (isLoading) return <p>Loading...</p>;
+
   const userDetails = usersData?.data;
+  console.log(surveyQuestion?.data);
 
   const handleSearch = (value) => {
     const searchQuery = value.toLowerCase();
@@ -106,40 +125,33 @@ const UsersPage = () => {
     setIsEditModalOpen(true);
   };
 
+  const handleViewSurvey = (userId) => {
+    const user = filteredData.find((user) => user._id === userId);
+    setSelectedUser(user);
+    setIsSurveyModalOpen(true);
+  };
+
   const handleUpdateUser = async (values) => {
     try {
-      // Create FormData for file upload
       const formData = new FormData();
-
-      // Add user ID
       formData.append("id", selectedUser._id);
 
-      // Add all form values to FormData
-      // Append all values except image
       Object.entries(values).forEach(([key, value]) => {
         if (key !== "image") {
           formData.append(key, value);
         }
       });
 
-      // Add image file if exists
       if (fileList.length > 0) {
         formData.append("image", fileList[0].originFileObj);
       }
-
-      // Log FormData entries for debugging (optional)
-      // for (let pair of formData.entries()) {
-      //   console.log(pair[0] + ': ' + pair[1]);
-      // }
 
       const res = await updateUser(formData).unwrap();
       if (res?.success) {
         toast.success("User updated successfully");
         setIsEditModalOpen(false);
-        // Reset upload state
         setFileList([]);
         setImageUrl("");
-        // Update selected user with new data
         setSelectedUser((prev) => ({
           ...prev,
           image: res.data.image || prev.image,
@@ -154,7 +166,6 @@ const UsersPage = () => {
     }
   };
 
-  // Image upload props
   const uploadProps = {
     beforeUpload: (file) => {
       const isImage = file.type.startsWith("image/");
@@ -169,20 +180,7 @@ const UsersPage = () => {
         return Upload.LIST_IGNORE;
       }
 
-      // Update fileList
       setFileList([file]);
-
-      // Create proper UploadFile object
-      const uploadFile = {
-        uid: Date.now().toString(),
-        name: file.name,
-        status: "done",
-        originFileObj: file,
-      };
-
-      setFileList([uploadFile]);
-
-      // Prevent automatic upload
       return false;
     },
     fileList,
@@ -193,7 +191,6 @@ const UsersPage = () => {
     maxCount: 1,
   };
 
-  // Table columns configuration
   const columns = [
     {
       title: "Serial No.",
@@ -232,7 +229,6 @@ const UsersPage = () => {
       dataIndex: "role",
       key: "role",
     },
-
     {
       title: "Phone",
       dataIndex: "phone",
@@ -245,15 +241,18 @@ const UsersPage = () => {
       key: "action",
       render: (_, record) => (
         <Space>
-          <Tooltip title={"Edit User"}>
+          <Tooltip title="Edit User">
             <FaEdit
               className="text-xl cursor-pointer"
               onClick={() => handleEdit(record)}
             />
           </Tooltip>
 
-          <Tooltip title={"Survey Questions"}>
-            <FaClipboardQuestion className="text-xl text-blue-600 cursor-pointer" />
+          <Tooltip title="Survey Questions">
+            <FaClipboardQuestion
+              onClick={() => handleViewSurvey(record._id)}
+              className="text-xl text-blue-600 cursor-pointer"
+            />
           </Tooltip>
 
           <FaTrash
@@ -325,7 +324,8 @@ const UsersPage = () => {
         <Table
           columns={columns}
           dataSource={filteredData}
-          key={userDetails?._id}
+          rowKey="_id"
+          pagination={{ pageSize: 10 }}
         />
       </ConfigProvider>
 
@@ -336,12 +336,7 @@ const UsersPage = () => {
         onCancel={() => setIsModalOpen(false)}
         footer={null}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleAddUser}
-          className="mt-4"
-        >
+        <Form form={form} layout="vertical" onFinish={handleAddUser}>
           <Form.Item
             label="Name"
             name="name"
@@ -411,12 +406,7 @@ const UsersPage = () => {
         }}
         footer={null}
       >
-        <Form
-          form={editForm}
-          layout="vertical"
-          onFinish={handleUpdateUser}
-          className="mt-4"
-        >
+        <Form form={editForm} layout="vertical" onFinish={handleUpdateUser}>
           <Form.Item
             label="Name"
             name="name"
@@ -428,18 +418,11 @@ const UsersPage = () => {
           <Form.Item label="Profile Image" name="image">
             <div className="flex flex-col items-center space-y-4">
               {imageUrl && (
-                <div className="mb-2">
-                  <img
-                    src={imageUrl}
-                    alt="Profile Preview"
-                    style={{
-                      width: "100px",
-                      height: "100px",
-                      borderRadius: "50%",
-                      objectFit: "cover",
-                    }}
-                  />
-                </div>
+                <img
+                  src={imageUrl}
+                  alt="Profile Preview"
+                  className="w-24 h-24 rounded-full object-cover"
+                />
               )}
               <Upload {...uploadProps}>
                 <button
@@ -506,6 +489,59 @@ const UsersPage = () => {
             </Space>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* Survey Questions Modal */}
+      <Modal
+        title={`Survey Responses - ${selectedUser?.name || "User"}`}
+        open={isSurveyModalOpen}
+        onCancel={() => {
+          setIsSurveyModalOpen(false);
+          setSelectedUser(null); // Reset the selected user when closing
+          setSelectedSurvey(null); // Reset the survey data when closing
+        }}
+        footer={[
+          <button
+            key="close"
+            onClick={() => setIsSurveyModalOpen(false)}
+            className="px-4 py-2 bg-[#EC4899] text-white rounded-md"
+          >
+            Close
+          </button>,
+        ]}
+        width={800}
+      >
+        {surveyQuestionLoading ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#EC4899]"></div>
+          </div>
+        ) : selectedSurvey?.body?.length > 0 ? (
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto p-4">
+            {selectedSurvey.body.map((item, index) => (
+              <div
+                key={item._id}
+                className="p-4 border rounded-lg bg-gray-50 mb-4"
+              >
+                <h3 className="font-semibold text-lg mb-2">
+                  {index + 1}. {item.question}
+                </h3>
+                <div className="pl-4 border-l-4 border-[#EC4899] mt-2">
+                  {item.answer.map((ans, i) => (
+                    <p key={i} className="text-gray-700 py-1">
+                      {ans}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="py-8 text-center">
+            <p className="text-lg text-gray-500">
+              No survey responses available for this user.
+            </p>
+          </div>
+        )}
       </Modal>
     </div>
   );

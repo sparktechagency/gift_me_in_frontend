@@ -18,7 +18,9 @@ export default function AuthGuard({ children }) {
     const userRole =
       localStorage.getItem("role") || sessionStorage.getItem("role");
 
-      
+    if (userRole !== "Admin" || userRole !== "SUPER_ADMIN") {
+      return router.push("/login");
+    }
 
     if (!authenticationToken) {
       router.push("/login");
