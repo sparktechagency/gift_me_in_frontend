@@ -27,6 +27,25 @@ const packageApi = api.injectEndpoints({
       }),
       invalidatesTags: ["package"],
     }),
+
+    //budget
+
+    getSubscribers: builder.query({
+      query: (id) => ({
+        url: `/payment`,
+        method: "GET",
+      }),
+      providesTags: ["package"],
+    }),
+
+    updateBudget: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/payment/edit-price/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["package"],
+    }),
   }),
 });
 
@@ -34,4 +53,8 @@ export const {
   useAllPackagesQuery,
   useAddPackageMutation,
   useEditPackageMutation,
+
+  //budget
+  useGetSubscribersQuery,
+  useUpdateBudgetMutation,
 } = packageApi;

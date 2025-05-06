@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   UserCheck,
   ChartBarStacked,
+  CircleDollarSign,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -26,6 +27,7 @@ const menuItems = [
   { name: "Product", icon: Box, link: "/product" },
   { name: "Category", icon: ChartBarStacked, link: "/category" },
   { name: "Package", icon: CreditCard, link: "/package" },
+  { name: "Edit Budget", icon: CircleDollarSign, link: "/edit-budget" },
   { name: "Subscribers", icon: UserCheck, link: "/subscribers" },
   { name: "Settings", icon: Settings, link: "/settings/admin/password" },
 ];
