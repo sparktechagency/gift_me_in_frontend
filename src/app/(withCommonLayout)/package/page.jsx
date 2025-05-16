@@ -237,6 +237,7 @@ const PackagePage = () => {
               <Select placeholder="Select duration">
                 <Select.Option value="month">Month</Select.Option>
                 <Select.Option value="year">Year</Select.Option>
+                <Select.Option value="7 days">Free</Select.Option>
               </Select>
             </Form.Item>
 
