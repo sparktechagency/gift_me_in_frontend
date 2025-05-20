@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button, Form, Input, message } from "antd";
+import { Button, Form, Input, message, Spin } from "antd";
 import { useVerifyEmailMutation } from "../../../redux/apiSlice/authSlice";
 
-const VerifyOTPPage = () => {
+// Create a separate component that uses useSearchParams
+const VerifyOTPContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
@@ -180,6 +181,19 @@ const VerifyOTPPage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Main page component with Suspense
+const VerifyOTPPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-screen">
+        <Spin />
+      </div>
+    }>
+      <VerifyOTPContent />
+    </Suspense>
   );
 };
 
