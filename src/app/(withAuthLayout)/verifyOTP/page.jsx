@@ -106,7 +106,7 @@ const VerifyOTPContent = () => {
         oneTimeCode: parseInt(otp), // Convert string to number
       };
 
-      console.log(verificationData);
+      //console.log(verificationData);
 
       const response = await verifyOTP(verificationData).unwrap();
 
@@ -187,11 +187,13 @@ const VerifyOTPContent = () => {
 // Main page component with Suspense
 const VerifyOTPPage = () => {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center h-screen">
-        <Spin />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-screen">
+          <Spin />
+        </div>
+      }
+    >
       <VerifyOTPContent />
     </Suspense>
   );

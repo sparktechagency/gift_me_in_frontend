@@ -19,7 +19,7 @@ const EventTable = () => {
   }
 
   const events = eventHistory?.data;
-  // console.log(events);
+  // //console.log(events);
 
   const columns = [
     {

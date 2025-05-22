@@ -14,7 +14,7 @@ export default function EventTable() {
   }
 
   const events = eventData?.data;
-  console.log(events);
+  //console.log(events);
 
   const placeholder = dayjs().format("MMM YYYY");
   const onChange = (date) => {

@@ -18,10 +18,10 @@ const Page = () => {
   }
 
   const orderData = orders?.data;
-  console.log(orderData);
+  //console.log(orderData);
 
   const handleChange = (value) => {
-    console.log(`selected ${value}`);
+    //console.log(`selected ${value}`);
   };
 
   const handleInputChange = (event) => {
@@ -29,7 +29,7 @@ const Page = () => {
   };
 
   const handleSearch = () => {
-    console.log("Searching for:", searchTerm);
+    //console.log("Searching for:", searchTerm);
   };
 
   const columns = [

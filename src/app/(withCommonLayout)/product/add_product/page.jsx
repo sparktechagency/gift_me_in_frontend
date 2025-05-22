@@ -23,7 +23,7 @@ const AddProducts = () => {
   }
 
   const categoriesList = categories?.data?.data;
-  console.log(categoriesList);
+  //console.log(categoriesList);
 
   // Handle image upload validation
   const beforeUpload = (file) => {
@@ -42,7 +42,7 @@ const AddProducts = () => {
   const onFinish = async (values) => {
     const formData = new FormData();
     try {
-      console.log(values);
+      //console.log(values);
 
       // Append text fields to FormData
       Object.keys(values).forEach((key) => {
@@ -56,7 +56,7 @@ const AddProducts = () => {
       // Append feature image
       if (values.feature && values.feature.length > 0) {
         formData.append("feature", values.feature[0].originFileObj);
-        // console.log("argbsdfhsrthb", values.feature[0].originFileObj);
+        // //console.log("argbsdfhsrthb", values.feature[0].originFileObj);
       }
 
       // Append additional images
@@ -68,7 +68,7 @@ const AddProducts = () => {
 
       // Call the API mutation with FormData
       const res = await addProduct(formData).unwrap();
-      console.log(res);
+      //console.log(res);
       if (res?.success) {
         toast.success("Product added successfully!");
         router.push("/product");
@@ -76,7 +76,7 @@ const AddProducts = () => {
         toast.error("Failed to add product!");
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       toast.error("Failed to add product!");
     }
   };

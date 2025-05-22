@@ -15,7 +15,7 @@ const Login = () => {
   const [login, isLoading] = useLoginMutation();
 
   const onFinish = async (values: { email: string; password: string }) => {
-    console.log(values);
+    //console.log(values);
     try {
       const res = await login(values).unwrap();
 

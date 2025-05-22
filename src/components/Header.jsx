@@ -17,7 +17,7 @@ const Header = () => {
   }
 
   const profile = profileData?.data;
-  console.log(profile);
+  //console.log(profile);
 
   return (
     <header className="w-full select-none shadow-md bg-white h-[100px] flex items-center">

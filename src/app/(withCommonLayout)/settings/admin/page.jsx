@@ -26,14 +26,14 @@ const Page = () => {
   }, []);
 
   const handleSearch = useCallback(() => {
-    console.log("Searching for:", searchTerm);
+    //console.log("Searching for:", searchTerm);
   }, [searchTerm]);
 
   const showModal = () => setIsModalOpen(true);
   const handleCancel = () => setIsModalOpen(false);
 
   const handleAddAdmin = async (values) => {
-    console.log(values);
+    //console.log(values);
 
     const data = {
       name: values.name,

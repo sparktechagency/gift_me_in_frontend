@@ -33,7 +33,7 @@ const Page = () => {
   }
 
   const products = productData?.data;
-  console.log(products);
+  //console.log(products);
 
   // Search filter
   const handleSearch = (value) => {
@@ -136,7 +136,7 @@ const Page = () => {
         toast.error(res?.message);
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 

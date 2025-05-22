@@ -106,7 +106,7 @@ const Page = () => {
   }
 
   const categoriesList = categories?.data?.data;
-  console.log(categoriesList);
+  //console.log(categoriesList);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -131,7 +131,7 @@ const Page = () => {
 
     try {
       const res = await createCategory(data).unwrap();
-      console.log(res);
+      //console.log(res);
       if (res?.success) {
         toast.success(res?.message);
         setFormData({ name: "", featureImage: null });
@@ -140,7 +140,7 @@ const Page = () => {
         toast.error(res?.message);
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 
@@ -153,7 +153,7 @@ const Page = () => {
         toast.error(res?.message);
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 

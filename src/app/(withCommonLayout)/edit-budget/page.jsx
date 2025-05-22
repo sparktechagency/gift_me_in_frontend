@@ -34,7 +34,7 @@ const page = () => {
   }
 
   const subscriberData = subscribers?.data;
-  console.log(subscriberData);
+  //console.log(subscriberData);
 
   const showModal = (record) => {
     setSelectedSubscriber(record);

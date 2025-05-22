@@ -28,7 +28,7 @@ const Page = () => {
   }
 
   const subscribers = subscribersData?.data;
-  console.log(subscribers);
+  //console.log(subscribers);
 
   const columns = [
     {

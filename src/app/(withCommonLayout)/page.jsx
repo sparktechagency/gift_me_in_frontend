@@ -119,7 +119,7 @@ const Page = () => {
   const [selectedYear, setSelectedYear] = useState(null);
 
   const handleYear = (date, dateString) => {
-    console.log(date, dateString);
+    //console.log(date, dateString);
   };
 
   return (
@@ -190,44 +190,46 @@ const Page = () => {
 
       <section className="shadow-lg flex flex-col gap-10 bg-white rounded-[10px] p-6">
         <div>
-        <h3 className="font-semibold text-[24px] leading-[36px]">
-          Gift Delivery and Subscriber Trends
-        </h3>
-        <div className="flex items-center gap-6">
-          <div className="flex w-[180px] items-center gap-2">
-            <div className="w-[16px] h-[16px] rounded-[2px] bg-[#F82BA9]"></div>
-            <h3 className="font-normal text-base leading-[24px] text-[#65728E]">
-              Gifts Delivered
-            </h3>
+          <h3 className="font-semibold text-[24px] leading-[36px]">
+            Gift Delivery and Subscriber Trends
+          </h3>
+          <div className="flex items-center gap-6">
+            <div className="flex w-[180px] items-center gap-2">
+              <div className="w-[16px] h-[16px] rounded-[2px] bg-[#F82BA9]"></div>
+              <h3 className="font-normal text-base leading-[24px] text-[#65728E]">
+                Gifts Delivered
+              </h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-[16px] h-[16px] rounded-[2px] bg-[#B01F78]"></div>
+              <h3 className="font-normal text-base leading-[24px] text-[#65728E]">
+                Subscribers
+              </h3>
+            </div>
+            <section className="flex justify-end w-full h-[48px]">
+              <DatePicker
+                onChange={handleYear}
+                picker="year"
+                placeholder={new Date().getFullYear().toString()}
+                suffixIcon={<DownOutlined />}
+                className="custom-datepicker"
+              />
+            </section>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-[16px] h-[16px] rounded-[2px] bg-[#B01F78]"></div>
-            <h3 className="font-normal text-base leading-[24px] text-[#65728E]">
-              Subscribers
-            </h3>
-          </div>
-          <section className="flex justify-end w-full h-[48px]">
-            <DatePicker
-              onChange={handleYear}
-              picker="year"
-              placeholder={new Date().getFullYear().toString()}
-              suffixIcon={<DownOutlined />}
-              className="custom-datepicker"
-            />
-          </section>
-        </div>
         </div>
         <ResponsiveContainer width="100%" height={400} className="p-0 m-0">
-  <BarChart data={giftData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-    <CartesianGrid strokeDasharray="3 3" />
-    <XAxis dataKey="month" />
-    <YAxis domain={[0, 700]} tickCount={8} />
-    <Tooltip content={<CustomBarTooltip />} />
-    <Bar dataKey="xValue" fill="#F82BA9" name="Bar 1" />
-    <Bar dataKey="yValue" fill="#B01F78" name="Bar 2" />
-  </BarChart>
-</ResponsiveContainer>
-
+          <BarChart
+            data={giftData}
+            margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis domain={[0, 700]} tickCount={8} />
+            <Tooltip content={<CustomBarTooltip />} />
+            <Bar dataKey="xValue" fill="#F82BA9" name="Bar 1" />
+            <Bar dataKey="yValue" fill="#B01F78" name="Bar 2" />
+          </BarChart>
+        </ResponsiveContainer>
       </section>
     </main>
   );

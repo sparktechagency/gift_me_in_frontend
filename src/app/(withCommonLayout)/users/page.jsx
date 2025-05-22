@@ -43,7 +43,7 @@ const UsersPage = () => {
   const [form] = Form.useForm();
   const [editForm] = Form.useForm();
 
-  console.log("asdvfsdv", selectedSurvey);
+  //console.log("asdvfsdv", selectedSurvey);
 
   const { data: surveyQuestion, isLoading: surveyQuestionLoading } =
     useGetSurveyQuestionsByIdQuery(selectedUser?._id, {
@@ -88,7 +88,7 @@ const UsersPage = () => {
   if (isLoading) return <p>Loading...</p>;
 
   const userDetails = usersData?.data;
-  console.log(surveyQuestion?.data);
+  //console.log(surveyQuestion?.data);
 
   const handleSearch = (value) => {
     const searchQuery = value.toLowerCase();
