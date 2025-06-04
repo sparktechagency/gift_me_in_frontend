@@ -40,9 +40,9 @@ export default function EventTable() {
     },
     {
       title: "Gift Preferences",
-      dataIndex: "giftPreferences",
-      key: "giftPreferences",
-      render: (text) => <p>{text.join(", ")}</p>,
+      dataIndex: "preferences",
+      key: "preferences",
+      render: (text) => <p>{text?.join(", ")}</p>,
     },
   ];
 

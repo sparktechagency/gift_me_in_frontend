@@ -37,6 +37,32 @@ const eventApi = api.injectEndpoints({
       }),
       providesTags: ["survey"],
     }),
+
+    // create event category
+    createEventCategory: builder.mutation({
+      query: (data) => ({
+        url: "/event-category/create",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["event"],
+    }),
+
+    getEventCategories: builder.query({
+      query: () => ({
+        url: "/event-category",
+        method: "GET",
+      }),
+      providesTags: ["event"],
+    }),
+
+    deleteEventCategory: builder.mutation({
+      query: (id) => ({
+        url: `/event-category/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["event"],
+    }),
   }),
 });
 
@@ -45,4 +71,9 @@ export const {
   useGetEventsQuery,
   useGetAllSubscribersQuery,
   useGetSurveyQuestionsByIdQuery,
+
+  //event category
+  useCreateEventCategoryMutation,
+  useGetEventCategoriesQuery,
+  useDeleteEventCategoryMutation,
 } = eventApi;

@@ -14,6 +14,8 @@ import {
   UserCheck,
   ChartBarStacked,
   CircleDollarSign,
+  Gift,
+  Tickets,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -24,8 +26,10 @@ const menuItems = [
   { name: "Events", icon: Calendar, link: "/events/upcoming_events" },
   { name: "Users", icon: Calendar, link: "/users" },
   { name: "Order", icon: ShoppingCart, link: "/order" },
+  { name: "gift-sent", icon: Gift, link: "/giftSent" },
   { name: "Product", icon: Box, link: "/product" },
   { name: "Category", icon: ChartBarStacked, link: "/category" },
+  { name: "Event Category", icon: Tickets, link: "/event-category" },
   { name: "Package", icon: CreditCard, link: "/package" },
   { name: "Edit Budget", icon: CircleDollarSign, link: "/edit-budget" },
   { name: "Subscribers", icon: UserCheck, link: "/subscribers" },

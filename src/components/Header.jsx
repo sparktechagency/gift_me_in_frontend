@@ -1,23 +1,54 @@
 "use client";
 
-import { Button } from "antd";
+import { Badge, Button } from "antd";
 import Image from "next/image";
 import Link from "next/link";
 import { useGetUserProfileQuery } from "../redux/apiSlice/authSlice";
 import { imageUrl } from "../redux/api/baseApi";
+import { FaRegBell } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import { io } from "socket.io-client";
 
 const Header = () => {
+  const [notificationCount, setNotificationCount] = useState(0);
   const { data: profileData, isLoading } = useGetUserProfileQuery();
 
-  // const isLoading = false;
-  // const profileData = [];
+  const token = Cookies.get("accessToken");
+  // console.log(token);
+
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    const id = decodedToken?._id || decodedToken?.authId;
+
+    useEffect(() => {
+      try {
+        const socket = io("http://10.0.70.188:5000", {
+          query: { token: token },
+        });
+
+        socket.on(
+          "get-notification::683d93aaa683d8710cf75f13",
+          (notification) => {
+            setNotificationCount((prevCount) => prevCount + 1);
+          }
+        );
+
+        return () => {
+          socket.disconnect();
+        };
+      } catch (error) {
+        console.log(error);
+      }
+    }, [id]);
+  }
 
   if (isLoading) {
     return <h1>Loading...</h1>;
   }
 
   const profile = profileData?.data;
-  //console.log(profile);
 
   return (
     <header className="w-full select-none shadow-md bg-white h-[100px] flex items-center">
@@ -38,13 +69,11 @@ const Header = () => {
         <div className="flex items-center gap-4 sm:gap-6">
           {/* Notification Icon */}
           <div className="relative cursor-pointer bg-[#FDCFEB21] p-[10px] rounded-md">
-            <Image
-              src={"/icons/bell.png"}
-              width={24}
-              height={24}
-              alt="notification icon"
-            />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            <Link href="/notifications" className="h-fit mt-[10px]">
+              <Badge count={notificationCount}>
+                <FaRegBell color="#4E4E4E" size={24} />
+              </Badge>
+            </Link>
           </div>
 
           {/* Profile */}

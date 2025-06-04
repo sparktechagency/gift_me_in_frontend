@@ -1,19 +1,32 @@
 "use client";
 
 import React, { useState } from "react";
-import { Select, Space, Table, Input, Button } from "antd";
+import {
+  Select,
+  Space,
+  Table,
+  Input,
+  Button,
+  Modal,
+  Upload,
+  message,
+} from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FaTrash } from "react-icons/fa";
+import { FiUpload } from "react-icons/fi";
+import { InboxOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import {
   useDeleteProductMutation,
   useGetAllProductsQuery,
+  useUploadExcelProductMutation,
 } from "../../../redux/apiSlice/productSlice";
 import { imageUrl } from "../../../redux/api/baseApi";
 import toast from "react-hot-toast";
 
 const { Search } = Input;
+const { Dragger } = Upload;
 
 const SELECT_OPTIONS = [
   { value: "jack", label: "Jack" },
@@ -24,16 +37,61 @@ const SELECT_OPTIONS = [
 const Page = () => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [fileList, setFileList] = useState([]);
 
   const { data: productData, isLoading } = useGetAllProductsQuery();
   const [deleteProduct] = useDeleteProductMutation();
+  const [uploadCSV] = useUploadExcelProductMutation();
 
   if (isLoading) {
     return <h1>Loading...</h1>;
   }
 
   const products = productData?.data;
-  //console.log(products);
+
+  // Upload props for CSV
+  const uploadProps = {
+    name: "file",
+    multiple: false,
+    accept: ".csv",
+    fileList,
+    beforeUpload: (file) => {
+      const isCsv = file.type === "text/csv" || file.name.endsWith(".csv");
+      if (!isCsv) {
+        message.error("You can only upload CSV files!");
+        return Upload.LIST_IGNORE;
+      }
+      setFileList([file]);
+      return false;
+    },
+    onRemove: () => {
+      setFileList([]);
+    },
+  };
+
+  const handleUpload = async () => {
+    if (fileList.length === 0) {
+      message.error("Please select a CSV file first!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("csv", fileList[0]);
+
+    try {
+      const res = await uploadCSV(formData).unwrap();
+      if (res?.success) {
+        toast.success(res?.message || "CSV file uploaded successfully");
+        setIsModalOpen(false);
+        setFileList([]);
+      } else {
+        toast.error(res?.message || "Failed to upload file");
+      }
+    } catch (error) {
+      toast.error("Failed to upload file");
+    }
+  };
 
   // Search filter
   const handleSearch = (value) => {
@@ -71,8 +129,8 @@ const Page = () => {
     },
     {
       title: "Category",
-      dataIndex: ["productCategory", "categoryName"],
-      key: "productCategory",
+      dataIndex: "category",
+      key: "category",
     },
     {
       title: "Regular Price",
@@ -163,12 +221,21 @@ const Page = () => {
         </div>
 
         {/* Add Product Button */}
-        <button
-          onClick={() => router.push("/product/add_product")}
-          className="text-white font-medium text-lg bg-[#F82BA9] px-4 py-3 rounded-md"
-        >
-          + Add Product
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="text-white flex items-center gap-2 font-medium text-lg bg-[#F82BA9] px-4 py-3 rounded-md"
+          >
+            <FiUpload />
+            Upload Excel
+          </button>
+          <button
+            onClick={() => router.push("/product/add_product")}
+            className="text-white font-medium text-lg bg-[#F82BA9] px-4 py-3 rounded-md"
+          >
+            + Add Product
+          </button>
+        </div>
       </div>
 
       {/* Product Table */}
@@ -178,6 +245,51 @@ const Page = () => {
         rowKey="_id"
         pagination={{ pageSize: 10 }}
       />
+
+      {/* CSV Upload Modal */}
+      <Modal
+        title="Upload CSV File"
+        open={isModalOpen}
+        onCancel={() => {
+          setIsModalOpen(false);
+          setFileList([]);
+        }}
+        footer={[
+          <Button
+            key="cancel"
+            onClick={() => {
+              setIsModalOpen(false);
+              setFileList([]);
+            }}
+          >
+            Cancel
+          </Button>,
+          <Button
+            key="upload"
+            type="primary"
+            onClick={handleUpload}
+            className="bg-[#F82BA9]"
+            disabled={fileList.length === 0}
+          >
+            Upload
+          </Button>,
+        ]}
+      >
+        <div className="py-4">
+          <Dragger {...uploadProps}>
+            <p className="ant-upload-drag-icon">
+              <InboxOutlined />
+            </p>
+            <p className="ant-upload-text">
+              Click or drag CSV file to this area to upload
+            </p>
+            <p className="ant-upload-hint">
+              Support for single CSV file upload only. Please ensure your CSV
+              file follows the required format.
+            </p>
+          </Dragger>
+        </div>
+      </Modal>
     </main>
   );
 };

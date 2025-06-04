@@ -7,7 +7,7 @@ import { useAddProductMutation } from "../../../../redux/apiSlice/productSlice";
 import toast from "react-hot-toast";
 import { useGetCategoriesQuery } from "../../../../redux/apiSlice/categorySlice";
 import { useRouter } from "next/navigation";
-
+import { useGetEventCategoriesQuery } from "../../../../redux/apiSlice/eventSlice";
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -15,13 +15,20 @@ const AddProducts = () => {
   const [form] = Form.useForm();
   const { data: categories, isLoading: categoriesLoading } =
     useGetCategoriesQuery();
+
+  const { data: events, isLoading: eventsLoading } =
+    useGetEventCategoriesQuery();
+
   const [addProduct] = useAddProductMutation();
+
   const router = useRouter();
 
-  if (categoriesLoading) {
+  if (categoriesLoading || eventsLoading) {
     return <h1>Loading...</h1>;
   }
 
+  const eventsList = events?.data;
+  console.log(eventsList);
   const categoriesList = categories?.data?.data;
   //console.log(categoriesList);
 
@@ -122,13 +129,29 @@ const AddProducts = () => {
             {/* Product Category */}
             <Form.Item
               label="Product Category"
-              name="productCategory"
+              name="category"
               rules={[{ required: true, message: "Please select a category!" }]}
             >
               <Select placeholder="Select a category">
                 {categoriesList?.map((category) => (
-                  <Option key={category._id} value={category._id}>
+                  <Option key={category._id} value={category?.categoryName}>
                     {category.categoryName}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              label="Event Category"
+              name="eventCategory"
+              rules={[
+                { required: true, message: "Please select a event category!" },
+              ]}
+            >
+              <Select placeholder="Select a category">
+                {eventsList?.map((category) => (
+                  <Option key={category?._id} value={category?._id}>
+                    {category?.eventCategory}
                   </Option>
                 ))}
               </Select>

@@ -40,8 +40,8 @@ const EventTable = () => {
     },
     {
       title: "Gift Preferences",
-      dataIndex: "giftPreferences",
-      key: "giftPreferences",
+      dataIndex: "preferences",
+      key: "preferences",
       render: (text) => <p>{text.join(", ")}</p>,
     },
   ];

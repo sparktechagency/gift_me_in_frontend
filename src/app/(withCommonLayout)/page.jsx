@@ -19,8 +19,20 @@ import {
   Rectangle,
 } from "recharts";
 import { User, Gift, ShoppingCart, DollarSign } from "lucide-react";
+import {
+  useExportRevenueExcelMutation,
+  useGetGeneralStatesQuery,
+  useRevenueChartDataQuery,
+} from "../../redux/apiSlice/dashboardSlice";
+import Link from "next/link";
 
-const data = [{ value: 200 }, { value: 1500 }, { value: 350 }, { value: 1500 }];
+// Added month property to data
+const data = [
+  { month: "Jan", value: 200 },
+  { month: "Feb", value: 1500 },
+  { month: "Mar", value: 350 },
+  { month: "Apr", value: 1500 },
+];
 
 const revinueData = [
   { month: "Jan", value: 0 },
@@ -53,13 +65,16 @@ const giftData = [
 ];
 
 const getChartColor = (data) => {
-  if (!data || data.length === 0) return "#16a34a"; // Default green
-  const lastValue = data[data.length - 1].value;
+  if (!data || !Array.isArray(data) || data.length === 0) return "#16a34a"; // Default green
+  const lastItem = data[data.length - 1];
+  const lastValue = lastItem?.value || 0;
   return lastValue > 500 ? "#16a34a" : "#dc2626";
 };
 
-const Card = ({ title, icon: Icon, value, data }) => {
+const Card = ({ title, icon: Icon, value, data = [] }) => {
   const chartColor = getChartColor(data);
+  const chartData = Array.isArray(data) ? data : [];
+
   return (
     <div className="p-4 rounded-[10px] w-[340px] shadow-lg bg-white">
       <div className="flex items-center gap-2">
@@ -71,7 +86,7 @@ const Card = ({ title, icon: Icon, value, data }) => {
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold mt-2">{value}</h2>
         <ResponsiveContainer width={100} height={60}>
-          <LineChart data={data}>
+          <LineChart data={chartData}>
             <Line
               type="monotone"
               dataKey="value"
@@ -114,70 +129,116 @@ const CustomBarTooltip = ({ active, payload }) => {
 };
 
 const Page = () => {
-  const [year, setYear] = useState("2024");
+  const [duration, setDuration] = useState("monthly");
   const highlightData = data.find((d) => d.month === "Jun");
-  const [selectedYear, setSelectedYear] = useState(null);
 
-  const handleYear = (date, dateString) => {
-    //console.log(date, dateString);
+  const { data: generalData, isLoading, error } = useGetGeneralStatesQuery();
+  const { data: revenueData, isFetching } = useRevenueChartDataQuery(duration);
+  const [exportExcel] = useExportRevenueExcelMutation(duration);
+
+  if (isLoading || isFetching) return <div>Loading...</div>;
+  if (error) return <div>Error loading data</div>;
+
+  const generalState = generalData?.data || {};
+  const chartData = revenueData?.data || revinueData;
+  console.log(chartData);
+
+  const handleDurationChange = (e) => {
+    setDuration(e.target.value);
+  };
+
+  const handleDownloadExcel = async () => {
+    try {
+      const response = await exportExcel(duration).unwrap(); // unwrap to access the raw response
+      const blob = new Blob([response], {
+        type: "text/csv;charset=utf-8;",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `revenue-${duration}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading Excel:", error);
+    }
   };
 
   return (
     <main className="w-full flex flex-col gap-8 ">
-      <section className="flex justify-end w-full h-[48px]">
-        <DatePicker
-          onChange={() => {}}
-          placeholder={new Date().toLocaleDateString("en-US", {
-            month: "long",
-            day: "2-digit",
-          })}
-          suffixIcon={<DownOutlined />}
-          className="custom-datepicker"
-        />
-      </section>
-
       <section>
         <div className="flex items-center justify-between">
           <Card
             title="Active Subscriber"
             icon={User}
-            value={1500}
+            value={generalState.activeUser || 1500}
+            data={generalState.activeUser || data}
+          />
+          <Link href={"/giftSent"}>
+            <Card
+              title="Gift Sent"
+              icon={Gift}
+              value={generalState.giftsSent || 0}
+              data={data}
+            />
+          </Link>
+          <Link href={"/order"}>
+            <Card
+              title="Order"
+              icon={ShoppingCart}
+              value={generalState.orders || 0}
+              data={data}
+            />
+          </Link>
+          <Card
+            title="Revenue"
+            icon={DollarSign}
+            value={generalState.totalAmount || 500}
             data={data}
           />
-          <Card title="Gift Sent" icon={Gift} value={1500} data={data} />
-          <Card title="Order" icon={ShoppingCart} value={1500} data={data} />
-          <Card title="Revenue" icon={DollarSign} value={500} data={data} />
         </div>
       </section>
-      {/*  revenue charts */}
 
+      {/* revenue charts */}
       <div className="shadow-lg bg-white rounded-[10px]">
         <div className="flex items-center justify-between py-6 px-10">
           <h3 className="font-semibold w-full text-[24px] leading-[36px] text-[#160E4B] ">
             Revenue Analytics
           </h3>
           <section className="flex justify-end w-full h-[48px]">
-            <DatePicker
-              onChange={handleYear}
-              picker="year"
-              placeholder={new Date().getFullYear().toString()}
-              suffixIcon={<DownOutlined />}
-              className="custom-datepicker"
-            />
+            <select
+              value={duration}
+              onChange={handleDurationChange}
+              className="px-4 py-2 border rounded-md cursor-pointer bg-white hover:border-[#F82BA9] focus:outline-none focus:border-[#F82BA9]"
+            >
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </section>
+          <section>
+            <button
+              onClick={() => handleDownloadExcel()}
+              className="bg-[#F82BA9] text-white px-6 py-2 ms-5 rounded-md hover:bg-[#dc2626] focus:outline-none focus:bg-[#dc2626]"
+            >
+              Export
+            </button>
           </section>
         </div>
         <ResponsiveContainer width="100%" height={400} className="p-0 m-0">
           <LineChart
-            data={revinueData}
+            data={chartData}
             margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
           >
             <CartesianGrid strokeDasharray="1 0" />
-            <XAxis dataKey="month" />
+            <XAxis dataKey="label" />
             <YAxis tickFormatter={(tick) => `${tick / 1000}k`} />
             <Tooltip content={<CustomTooltip />} />
             <Line
               type="monotone"
-              dataKey="value"
+              dataKey="amount"
               stroke="#F82BA9"
               strokeWidth={3}
               dot={{ r: 4 }}
@@ -187,7 +248,6 @@ const Page = () => {
       </div>
 
       {/* Last Charts */}
-
       <section className="shadow-lg flex flex-col gap-10 bg-white rounded-[10px] p-6">
         <div>
           <h3 className="font-semibold text-[24px] leading-[36px]">
@@ -206,15 +266,6 @@ const Page = () => {
                 Subscribers
               </h3>
             </div>
-            <section className="flex justify-end w-full h-[48px]">
-              <DatePicker
-                onChange={handleYear}
-                picker="year"
-                placeholder={new Date().getFullYear().toString()}
-                suffixIcon={<DownOutlined />}
-                className="custom-datepicker"
-              />
-            </section>
           </div>
         </div>
         <ResponsiveContainer width="100%" height={400} className="p-0 m-0">
@@ -226,8 +277,8 @@ const Page = () => {
             <XAxis dataKey="month" />
             <YAxis domain={[0, 700]} tickCount={8} />
             <Tooltip content={<CustomBarTooltip />} />
-            <Bar dataKey="xValue" fill="#F82BA9" name="Bar 1" />
-            <Bar dataKey="yValue" fill="#B01F78" name="Bar 2" />
+            <Bar dataKey="xValue" fill="#F82BA9" name="Gifts Delivered" />
+            <Bar dataKey="yValue" fill="#B01F78" name="Subscribers" />
           </BarChart>
         </ResponsiveContainer>
       </section>

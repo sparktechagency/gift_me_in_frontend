@@ -15,22 +15,6 @@ const Page = () => {
 
   const { data: giftSent, isLoading } = useGetGiftSentQuery();
 
-  // Live timer tick
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(dayjs());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Utility to calculate time left
-  const getTimeLeft = (createdAt) => {
-    const expiration = dayjs(createdAt).add(48, "hour");
-    const diff = expiration.diff(now);
-    if (diff <= 0) return "Expired";
-    return dayjs.duration(diff).format("HH:mm:ss");
-  };
-
   // Override modal trigger
   const handleOverride = (record) => {
     setEditingGift(record);
@@ -57,7 +41,8 @@ const Page = () => {
 
   const gifts = giftSent?.data || [];
 
-  const pendingGifts = gifts.filter((gift) => gift.status === "pending");
+  const pendingGifts = gifts.filter((gift) => gift.status === "send");
+  // console.log(pendingGifts);
 
   const columns = [
     {
@@ -90,32 +75,16 @@ const Page = () => {
       title: "Time Left",
       dataIndex: "createdAt",
       render: (text) => (
-        <span className="text-red-500">{getTimeLeft(text)}</span>
+        <span className="">{dayjs(text).format("DD/MM/YYYY")}</span>
       ),
     },
     {
       title: "Status",
       dataIndex: "status",
       render: (text) => (
-        <span
-          className={`${
-            text === "pending"
-              ? "text-yellow-500"
-              : text === "overridden"
-              ? "text-blue-500"
-              : "text-green-600"
-          } font-medium`}
-        >
+        <span className="text-[#160E4B] font-medium text-[14px] leading-[17px]">
           {text}
         </span>
-      ),
-    },
-    {
-      title: "Action",
-      render: (_, record) => (
-        <Button type="link" onClick={() => handleOverride(record)}>
-          Override
-        </Button>
       ),
     },
   ];
@@ -123,7 +92,7 @@ const Page = () => {
   return (
     <main className="p-6 bg-white flex flex-col gap-5 shadow-lg rounded-lg">
       <h3 className="text-[#160E4B] font-medium text-[20px] leading-[25px]">
-        Gifts (Pending Approval)
+        Sent Gifts (Pending Approval)
       </h3>
 
       <ConfigProvider

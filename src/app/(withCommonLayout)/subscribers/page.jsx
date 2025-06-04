@@ -59,6 +59,12 @@ const Page = () => {
       render: (text) => <p>${text}</p>,
     },
     {
+      title: "Gift Balance",
+      dataIndex: "balance",
+      key: "balance",
+      render: (text) => <p>${text}</p>,
+    },
+    {
       title: "Status",
       dataIndex: "status",
       key: "status",

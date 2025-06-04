@@ -50,10 +50,13 @@ const Table = ({ head, bodyData, routeName }) => {
                 <td
                   key={key}
                   className={`px-6 py-3 text-start text-[#212529] ${
-                    (key === "status" || key === "permission")  && 
-                    (value === "Delivered" || value === "In Stock" || value === "Paid" || value === "Active")
+                    (key === "status" || key === "permission") &&
+                    (value === "Delivered" ||
+                      value === "In Stock" ||
+                      value === "Paid" ||
+                      value === "Active")
                       ? "text-[#28A745]" // Green for Delivered/In Stock
-                      : (key === "status"||key=== "permission")
+                      : key === "status" || key === "permission"
                       ? "text-[#FF0004]" // Red for other statuses
                       : ""
                   } ${key === "OrderNumber" ? "font-bold" : ""}`}
@@ -78,7 +81,11 @@ const Table = ({ head, bodyData, routeName }) => {
                     }`}
                   >
                     <Eye size={20} />
-                    {(routeName === "setting" || routeName === "subscription") ? "" : <Pencil size={18} />}
+                    {routeName === "setting" || routeName === "subscription" ? (
+                      ""
+                    ) : (
+                      <Pencil size={18} />
+                    )}
                   </button>
                 </td>
               )}
