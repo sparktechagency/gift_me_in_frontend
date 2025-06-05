@@ -4,6 +4,7 @@ import { Table, ConfigProvider, Button, Modal, Input, Spin } from "antd";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { useGetGiftSentQuery } from "../../../redux/apiSlice/orderSlice";
+import { Key } from "lucide-react";
 
 dayjs.extend(duration);
 
@@ -25,10 +26,19 @@ const Page = () => {
 
   // Utility to calculate time left
   const getTimeLeft = (createdAt) => {
-    const expiration = dayjs(createdAt).add(48, "hour");
-    const diff = expiration.diff(now);
-    if (diff <= 0) return "Expired";
-    return dayjs.duration(diff).format("HH:mm:ss");
+    const createdTime = dayjs(createdAt);
+    const expiration = createdTime.add(48, "hour");
+    const timeLeft = expiration.diff(now, "second");
+
+    if (timeLeft <= 0) return "Expired";
+
+    const hours = Math.floor(timeLeft / 3600);
+    const minutes = Math.floor((timeLeft % 3600) / 60);
+    const seconds = timeLeft % 60;
+
+    return `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
   // Override modal trigger
@@ -65,13 +75,19 @@ const Page = () => {
       render: (_, __, index) => index + 1,
     },
     {
-      title: "Date",
+      title: "Created At",
       dataIndex: "createdAt",
       render: (text) => dayjs(text)?.format("MMM DD, YYYY"),
     },
     {
+      title: "Event Date",
+      dataIndex: ["event", "eventDate"],
+      render: (text) => dayjs(text)?.format("MMM DD, YYYY"),
+    },
+    {
       title: "Customer",
-      render: (_, record) => record?.user?.name,
+      dataIndex: ["event", "RecipientName"],
+      Key: "event",
     },
     {
       title: "Email",
@@ -88,7 +104,7 @@ const Page = () => {
     },
     {
       title: "Time Left",
-      dataIndex: "createdAt",
+      dataIndex: "updatedAt",
       render: (text) => (
         <span className="text-red-500">{getTimeLeft(text)}</span>
       ),

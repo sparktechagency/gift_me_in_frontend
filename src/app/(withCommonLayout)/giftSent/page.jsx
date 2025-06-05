@@ -92,7 +92,7 @@ const Page = () => {
   return (
     <main className="p-6 bg-white flex flex-col gap-5 shadow-lg rounded-lg">
       <h3 className="text-[#160E4B] font-medium text-[20px] leading-[25px]">
-        Sent Gifts (Pending Approval)
+        Sent Gifts
       </h3>
 
       <ConfigProvider
