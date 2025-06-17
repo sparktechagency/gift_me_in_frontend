@@ -53,6 +53,8 @@ const PackagePage = () => {
       category: pkg.category,
       features: pkg.features.join("\n"),
       isRecommended: pkg.isRecommended,
+      isActive: pkg.isActive,
+      addGiftBalance: pkg.addGiftBalance,
     });
     setIsModalOpen(true);
   };
@@ -64,7 +66,6 @@ const PackagePage = () => {
         features: values.features
           .split("\n")
           .filter((feature) => feature.trim()),
-        isRecommended: values.isRecommended || false,
       };
 
       const data = {
@@ -76,10 +77,8 @@ const PackagePage = () => {
 
       let response;
       if (selectedPackage) {
-        // Update existing package
         response = await editPackage(data);
       } else {
-        // Add new package
         response = await addPackage(formattedValues);
       }
 
@@ -114,25 +113,19 @@ const PackagePage = () => {
         </button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-5 bg-pink-50 p-5 rounded-xl">
-        {allPackages?.map((pkg) => (
-          <div className="relative">
+        {allPackages?.map((pkg, i) => (
+          <div className="relative" key={i}>
             <Card
-              key={pkg._id}
               className="hover:shadow-xl transition-shadow flex flex-col h-full"
               title={
                 <div className="flex justify-between items-center">
-                  <div>
-                    <span className="text-2xl font-bold">{pkg.name} </span>
-                  </div>
+                  <span className="text-2xl font-bold">{pkg.name}</span>
                   <Tag color="pink">{pkg.duration}</Tag>
                 </div>
               }
             >
               <div className="mb-3">
-                {" "}
-                {pkg.isRecommended === true ? (
-                  <Tag color="green">Recommended</Tag>
-                ) : null}
+                {pkg.isRecommended && <Tag color="green">Recommended</Tag>}
               </div>
               <p className="text-gray-600 mb-4">{pkg.description}</p>
               <div className="mb-6">
@@ -152,14 +145,6 @@ const PackagePage = () => {
                   ))}
                 </ul>
               </div>
-
-              {/* {pkg.hasTrial && (
-              <p className="text-green-600 mb-4">
-                Includes free trial until{" "}
-                {new Date(pkg.trialEndsAt).toLocaleDateString()}
-              </p>
-            )} */}
-
               <div className="absolute bottom-5 w-[90%]">
                 <Button
                   type="primary"
@@ -175,7 +160,6 @@ const PackagePage = () => {
         ))}
       </div>
 
-      {/* Merged Modal */}
       <Modal
         title={selectedPackage ? "Edit Package" : "Add New Package"}
         open={isModalOpen}
@@ -277,6 +261,49 @@ const PackagePage = () => {
             valuePropName="checked"
           >
             <Switch />
+          </Form.Item>
+
+          <Form.Item
+            name="isActive"
+            label="Show on Homepage"
+            valuePropName="checked"
+            initialValue={true}
+          >
+            <Switch />
+          </Form.Item>
+
+          {/* Gift Balance Selection */}
+          <div className="mb-4">
+            <label className="block mb-2">Gift Balance Amount</label>
+            <Space>
+              <Button
+                type={form.getFieldValue('addGiftBalance') === 5 ? 'primary' : 'default'}
+                onClick={() => form.setFieldsValue({ addGiftBalance: 5 })}
+                className={form.getFieldValue('addGiftBalance') === 5 ? 'bg-pink-500' : ''}
+              >
+                $5
+              </Button>
+              <Button
+                type={form.getFieldValue('addGiftBalance') === 10 ? 'primary' : 'default'}
+                onClick={() => form.setFieldsValue({ addGiftBalance: 10 })}
+                className={form.getFieldValue('addGiftBalance') === 10 ? 'bg-pink-500' : ''}
+              >
+                $10
+              </Button>
+            </Space>
+          </div>
+
+          <Form.Item
+            name="addGiftBalance"
+            label="Gift Balance"
+            className="mb-4"
+          >
+            <InputNumber
+              className="w-full"
+              prefix="$"
+              readOnly
+              placeholder="Selected gift balance amount"
+            />
           </Form.Item>
 
           <Form.Item className="flex justify-end mb-0">

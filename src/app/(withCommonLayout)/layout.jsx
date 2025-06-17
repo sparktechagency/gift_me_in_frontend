@@ -25,6 +25,7 @@ const menuItems = [
   { name: "Overview", icon: LayoutDashboard, link: "/" },
   { name: "Events", icon: Calendar, link: "/events/upcoming_events" },
   { name: "Users", icon: Calendar, link: "/users" },
+  { name: "Shop Orders", icon: ShoppingCart, link: "/shop-orders" },
   { name: "Order", icon: ShoppingCart, link: "/order" },
   { name: "gift-sent", icon: Gift, link: "/giftSent" },
   { name: "Product", icon: Box, link: "/product" },

@@ -34,6 +34,23 @@ const orderApi = api.injectEndpoints({
       }),
       invalidatesTags: ["order"],
     }),
+
+    getAllProductsByCategory: builder.query({
+      query: (category) => ({
+        url: `/gift-collection/${category}`,
+        method: "GET",
+      }),
+      providesTags: ["order"],
+    }),
+
+    overrideGift: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/gift-collection/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["order"],
+    }),
   }),
 });
 
@@ -42,4 +59,6 @@ export const {
   useGetGiftSentQuery,
   useGetNotificationsQuery,
   useUpdateNotificationMutation,
+  useGetAllProductsByCategoryQuery,
+  useOverrideGiftMutation,
 } = orderApi;

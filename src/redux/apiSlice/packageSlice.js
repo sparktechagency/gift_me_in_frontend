@@ -32,7 +32,7 @@ const packageApi = api.injectEndpoints({
 
     getSubscribers: builder.query({
       query: (id) => ({
-        url: `/payment`,
+        url: `/payment/all-subscriber`,
         method: "GET",
       }),
       providesTags: ["package"],

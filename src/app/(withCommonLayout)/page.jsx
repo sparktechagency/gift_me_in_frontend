@@ -76,7 +76,7 @@ const Card = ({ title, icon: Icon, value, data = [] }) => {
   const chartData = Array.isArray(data) ? data : [];
 
   return (
-    <div className="p-4 rounded-[10px] w-[340px] shadow-lg bg-white">
+    <div className="p-4 rounded-[10px] w-[280px] shadow-lg bg-white">
       <div className="flex items-center gap-2">
         <div className="p-2 bg-pink-500 text-white rounded-lg">
           <Icon size={20} />
@@ -193,9 +193,15 @@ const Page = () => {
             />
           </Link>
           <Card
-            title="Revenue"
+            title="Total Earned"
             icon={DollarSign}
-            value={generalState.totalAmount || 500}
+            value={`$${generalState.totalAmount}` || 500}
+            data={data}
+          />
+          <Card
+            title="My Revenue"
+            icon={DollarSign}
+            value={`$${generalState.totalAmount / 2}` || 500}
             data={data}
           />
         </div>

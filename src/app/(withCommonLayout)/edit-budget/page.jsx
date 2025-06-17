@@ -39,7 +39,7 @@ const page = () => {
   const showModal = (record) => {
     setSelectedSubscriber(record);
     form.setFieldsValue({
-      amountPaid: record.amountPaid,
+      balance: record.balance,
     });
     setIsModalOpen(true);
   };
@@ -54,7 +54,7 @@ const page = () => {
     try {
       const response = await updateBudget({
         id: selectedSubscriber?.user?._id,
-        data: { amountPaid: parseFloat(values.amountPaid) },
+        data: { balance: parseFloat(values.balance) },
       }).unwrap();
 
       if (response.success) {
@@ -101,8 +101,8 @@ const page = () => {
     },
     {
       title: "Balance Budget",
-      dataIndex: "amountPaid",
-      key: "amountPaid",
+      dataIndex: "balance",
+      key: "balance",
       render: (amount) => `$${amount}`,
     },
     {
@@ -179,7 +179,7 @@ const page = () => {
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Form.Item
-            name="amountPaid"
+            name="balance"
             label="Budget Balance"
             rules={[
               { required: true, message: "Please enter the amount" },

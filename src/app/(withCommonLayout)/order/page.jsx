@@ -1,10 +1,25 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Table, ConfigProvider, Button, Modal, Input, Spin } from "antd";
+import {
+  Table,
+  ConfigProvider,
+  Button,
+  Modal,
+  Input,
+  Spin,
+  Tag,
+  Space,
+  Select,
+  message,
+} from "antd";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-import { useGetGiftSentQuery } from "../../../redux/apiSlice/orderSlice";
-import { Key } from "lucide-react";
+import {
+  useGetAllProductsByCategoryQuery,
+  useGetGiftSentQuery,
+  useOverrideGiftMutation,
+} from "../../../redux/apiSlice/orderSlice";
+import { CloseOutlined } from "@ant-design/icons";
 
 dayjs.extend(duration);
 
@@ -13,10 +28,13 @@ const Page = () => {
   const [overrideModalOpen, setOverrideModalOpen] = useState(false);
   const [editingGift, setEditingGift] = useState(null);
   const [newGiftInput, setNewGiftInput] = useState("");
+  const [currentGifts, setCurrentGifts] = useState([]);
+  const [categoryProducts, setCategoryProducts] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
 
-  const { data: giftSent, isLoading } = useGetGiftSentQuery();
+  const { data: giftSent, isLoading, refetch } = useGetGiftSentQuery();
+  const [overrideGift, { isLoading: isOverriding }] = useOverrideGiftMutation();
 
-  // Live timer tick
   useEffect(() => {
     const interval = setInterval(() => {
       setNow(dayjs());
@@ -24,7 +42,6 @@ const Page = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Utility to calculate time left
   const getTimeLeft = (createdAt) => {
     const createdTime = dayjs(createdAt);
     const expiration = createdTime.add(48, "hour");
@@ -41,20 +58,74 @@ const Page = () => {
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
-  // Override modal trigger
-  const handleOverride = (record) => {
+  const handleOverride = async (record) => {
     setEditingGift(record);
-    setNewGiftInput(record.overrideName || record.product.productName);
+    setSelectedCategory(record?.event?.category || "");
+
+    // Initialize current gifts with existing product IDs
+    const initialGifts = record.product?.map((p) => p._id) || [];
+    setCurrentGifts(initialGifts);
     setOverrideModalOpen(true);
   };
 
-  // Override handler (temporary, local override)
-  const handleSaveOverride = () => {
-    if (editingGift) {
-      editingGift.overrideName = newGiftInput; // Just temporary, not persisted
+  const { data: productsData, isLoading: isProductsLoading } =
+    useGetAllProductsByCategoryQuery(selectedCategory, {
+      skip: !selectedCategory,
+    });
+
+  useEffect(() => {
+    if (productsData?.data) {
+      setCategoryProducts(productsData.data);
     }
-    setEditingGift(null);
-    setOverrideModalOpen(false);
+  }, [productsData]);
+
+  const handleAddCustomGift = () => {
+    if (newGiftInput.trim()) {
+      // For custom gifts, we'll need to handle this differently since they won't have IDs
+      // This assumes your API can handle string product names in the array
+      setCurrentGifts([...currentGifts, newGiftInput.trim()]);
+      setNewGiftInput("");
+    }
+  };
+
+  const handleSelectGift = (value, option) => {
+    // option contains the full product object including _id
+    if (value && !currentGifts.includes(option.product._id)) {
+      setCurrentGifts([...currentGifts, option.product._id]);
+    }
+  };
+
+  const handleRemoveGift = (giftToRemove) => {
+    setCurrentGifts(
+      currentGifts.filter(
+        (gift, index) => gift !== giftToRemove
+        // Or if you need to handle duplicates differently:
+        // (gift, index) => index !== currentGifts.indexOf(giftToRemove)
+      )
+    );
+  };
+
+  const handleSaveOverride = async () => {
+    if (!editingGift) return;
+
+    try {
+      const response = await overrideGift({
+        id: editingGift._id,
+        data: {
+          product: currentGifts.filter(
+            (gift) => typeof gift === "string" && gift.length === 24
+          ), // Only include valid MongoDB IDs
+        },
+      }).unwrap();
+
+      if (response.success) {
+        message.success("Gift override successful");
+        refetch();
+        setOverrideModalOpen(false);
+      }
+    } catch (err) {
+      message.error(err.data?.message || "Failed to override gift");
+    }
   };
 
   if (isLoading) {
@@ -66,18 +137,26 @@ const Page = () => {
   }
 
   const gifts = giftSent?.data || [];
-
   const pendingGifts = gifts.filter((gift) => gift.status === "pending");
+
+  // Create options for the Select component with both label and value
+  const productOptions =
+    categoryProducts?.map((product) => ({
+      value: product.productName,
+      label: product.productName,
+      product: product, // Include the full product object
+    })) || [];
+
+  // Helper function to get product name by ID
+  const getProductNameById = (id) => {
+    const product = categoryProducts.find((p) => p._id === id);
+    return product?.productName || id; // Fallback to ID if product not found
+  };
 
   const columns = [
     {
       title: "Serial",
       render: (_, __, index) => index + 1,
-    },
-    {
-      title: "Created At",
-      dataIndex: "createdAt",
-      render: (text) => dayjs(text)?.format("MMM DD, YYYY"),
     },
     {
       title: "Event Date",
@@ -87,20 +166,24 @@ const Page = () => {
     {
       title: "Customer",
       dataIndex: ["event", "RecipientName"],
-      Key: "event",
     },
     {
       title: "Email",
       render: (_, record) => record?.user?.email,
     },
     {
-      title: "Selected Gift",
-      render: (_, record) =>
-        record?.overrideName || record?.product?.productName,
+      title: "Contact",
+      render: (_, record) => record?.event?.phone,
     },
     {
-      title: "Estimated Amount",
-      render: (_, record) => `$${record?.product?.discountedPrice}`,
+      title: "Address",
+      render: (_, record) => record?.event?.address,
+    },
+    {
+      title: "Selected Gift",
+      render: (_, record) =>
+        record?.overrideName ||
+        record?.product?.map((product) => product.productName).join(", "),
     },
     {
       title: "Time Left",
@@ -160,12 +243,54 @@ const Page = () => {
         onCancel={() => setOverrideModalOpen(false)}
         onOk={handleSaveOverride}
         okText="Save"
+        confirmLoading={isOverriding}
+        width={600}
       >
-        <label className="block mb-2">Enter new gift name:</label>
-        <Input
-          value={newGiftInput}
-          onChange={(e) => setNewGiftInput(e.target.value)}
-        />
+        <div className="mb-4">
+          <label className="block mb-2 font-medium">Category:</label>
+          <p className="mb-4">{selectedCategory}</p>
+
+          <label className="block mb-2 font-medium">Available Products:</label>
+          <Select
+            showSearch
+            style={{ width: "100%" }}
+            placeholder="Select a product"
+            optionFilterProp="children"
+            onChange={handleSelectGift}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+            options={productOptions}
+            loading={isProductsLoading}
+            className="mb-4"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block mb-2 font-medium">Current Gifts:</label>
+          {currentGifts.length > 0 ? (
+            <Space size={[8, 8]} wrap>
+              {currentGifts.map((giftId) => (
+                <Tag
+                  key={giftId} // Use the giftId as the key instead of index
+                  closable
+                  onClose={() => handleRemoveGift(giftId)}
+                  closeIcon={<CloseOutlined />}
+                  className="text-sm py-1 px-2"
+                >
+                  {getProductNameById(giftId)}
+                </Tag>
+              ))}
+            </Space>
+          ) : (
+            <p className="text-gray-500">No gifts selected</p>
+          )}
+        </div>
+
+        <p className="text-gray-500 text-sm">
+          Select products from the dropdown to override. Custom gifts are for
+          display only.
+        </p>
       </Modal>
     </main>
   );
