@@ -18,8 +18,10 @@ const EventTable = () => {
     return <h1>Loading...</h1>;
   }
 
-  const events = eventHistory?.data;
-  // //console.log(events);
+  const events = eventHistory?.data?.filter(
+    (event) => event?.status === "completed"
+  );
+  console.log(events);
 
   const columns = [
     {
@@ -66,7 +68,7 @@ const EventTable = () => {
           </section>
         </div>
       </section>
-      <Table dataSource={events} columns={columns} />
+      <Table dataSource={events} rowKey="_id" columns={columns} />
     </div>
   );
 };

@@ -19,6 +19,35 @@ const productApi = api.injectEndpoints({
       invalidatesTags: ["product"],
     }),
 
+    getSingleProduct: builder.query({
+      query: (id) => ({
+        url: `/product/${id}`,
+        method: "GET",
+      }),
+      providesTags: ["product"],
+    }),
+
+    markAsDelivered: builder.mutation({
+      query: (data) => ({
+        url: `/gift-collection/${data.id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["product"],
+    }),
+
+    updateProduct: builder.mutation({
+      query: ({ id, body }) => ({
+        url: `/product/update/${id}`,
+        method: "PATCH", // or "PATCH" if your API supports partial updates
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "product", id },
+        { type: "product" }, // Also invalidate the full list
+      ],
+    }),
+
     uploadExcelProduct: builder.mutation({
       query: (data) => ({
         url: "/product/bulk-create",
@@ -52,4 +81,7 @@ export const {
   useUploadExcelProductMutation,
   useDeleteProductMutation,
   useGetEventCategoriesQuery,
+  useGetSingleProductQuery,
+  useUpdateProductMutation,
+  useMarkAsDeliveredMutation,
 } = productApi;

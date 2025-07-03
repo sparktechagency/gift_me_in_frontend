@@ -22,6 +22,7 @@ import { User, Gift, ShoppingCart, DollarSign } from "lucide-react";
 import {
   useExportRevenueExcelMutation,
   useGetGeneralStatesQuery,
+  useGetGiftDeliveryChartDataQuery,
   useRevenueChartDataQuery,
 } from "../../redux/apiSlice/dashboardSlice";
 import Link from "next/link";
@@ -133,14 +134,19 @@ const Page = () => {
   const highlightData = data.find((d) => d.month === "Jun");
 
   const { data: generalData, isLoading, error } = useGetGeneralStatesQuery();
+  const { data: giftDeliveryData, isFetching: giftDeliveryIsFetching } =
+    useGetGiftDeliveryChartDataQuery();
   const { data: revenueData, isFetching } = useRevenueChartDataQuery(duration);
   const [exportExcel] = useExportRevenueExcelMutation(duration);
 
-  if (isLoading || isFetching) return <div>Loading...</div>;
+  if (isLoading || giftDeliveryIsFetching || isFetching)
+    return <div>Loading...</div>;
   if (error) return <div>Error loading data</div>;
 
   const generalState = generalData?.data || {};
+  // const generalState = [];
   const chartData = revenueData?.data || revinueData;
+  const giftDeliveryChartData = giftDeliveryData?.data || [];
   console.log(chartData);
 
   const handleDurationChange = (e) => {
@@ -173,14 +179,14 @@ const Page = () => {
           <Card
             title="Active Subscriber"
             icon={User}
-            value={generalState.activeUser || 1500}
+            value={generalState.activeUser || "0"}
             data={generalState.activeUser || data}
           />
           <Link href={"/giftSent"}>
             <Card
               title="Gift Sent"
               icon={Gift}
-              value={generalState.giftsSent || 0}
+              value={generalState.giftsSent || "0"}
               data={data}
             />
           </Link>
@@ -188,20 +194,26 @@ const Page = () => {
             <Card
               title="Order"
               icon={ShoppingCart}
-              value={generalState.orders || 0}
+              value={generalState.orders || "0"}
               data={data}
             />
           </Link>
           <Card
             title="Total Earned"
             icon={DollarSign}
-            value={`$${generalState.totalAmount}` || 500}
+            value={
+              generalState.totalAmount ? `$${generalState.totalAmount}` : "0"
+            }
             data={data}
           />
           <Card
             title="My Revenue"
             icon={DollarSign}
-            value={`$${generalState.totalAmount / 2}` || 500}
+            value={
+              generalState.totalAmount
+                ? `$${generalState.totalAmount / 2}`
+                : "N/A"
+            }
             data={data}
           />
         </div>
@@ -276,15 +288,15 @@ const Page = () => {
         </div>
         <ResponsiveContainer width="100%" height={400} className="p-0 m-0">
           <BarChart
-            data={giftData}
+            data={giftDeliveryChartData}
             margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />
-            <YAxis domain={[0, 700]} tickCount={8} />
+            <YAxis tickCount={8} />
             <Tooltip content={<CustomBarTooltip />} />
-            <Bar dataKey="xValue" fill="#F82BA9" name="Gifts Delivered" />
-            <Bar dataKey="yValue" fill="#B01F78" name="Subscribers" />
+            <Bar dataKey="deliveries" fill="#F82BA9" name="Gifts Delivered" />
+            <Bar dataKey="subscribers" fill="#B01F78" name="Subscribers" />
           </BarChart>
         </ResponsiveContainer>
       </section>

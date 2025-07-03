@@ -10,6 +10,14 @@ const dashboardApi = api.injectEndpoints({
       providesTags: ["dashboard"],
     }),
 
+    getGiftDeliveryChartData: builder.query({
+      query: () => ({
+        url: `/dashboard/delivery-subscriber`,
+        method: "GET",
+      }),
+      providesTags: ["dashboard"],
+    }),
+
     revenueChartData: builder.query({
       query: (duration) => ({
         url: `/payment/revenue?type=${duration}`,
@@ -39,6 +47,7 @@ const dashboardApi = api.injectEndpoints({
 
 export const {
   useGetGeneralStatesQuery,
+  useGetGiftDeliveryChartDataQuery,
   useRevenueChartDataQuery,
   useExportRevenueExcelMutation,
   useActiveInactiveUsersQuery,

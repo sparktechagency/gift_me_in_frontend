@@ -141,7 +141,7 @@ const AddProducts = () => {
               </Select>
             </Form.Item>
 
-            <Form.Item
+            {/* <Form.Item
               label="Event Category"
               name="eventCategory"
               rules={[
@@ -155,7 +155,7 @@ const AddProducts = () => {
                   </Option>
                 ))}
               </Select>
-            </Form.Item>
+            </Form.Item> */}
 
             {/* Size (Array of Strings) */}
             <Form.Item

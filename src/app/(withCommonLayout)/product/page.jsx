@@ -14,6 +14,7 @@ import {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FaTrash } from "react-icons/fa";
+import { MdEditSquare } from "react-icons/md";
 import { FiUpload } from "react-icons/fi";
 import { InboxOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -171,11 +172,18 @@ const Page = () => {
       title: "Action",
       key: "action",
       render: (_, record) => (
-        <FaTrash
-          className="cursor-pointer text-red-500"
-          onClick={() => handleDelete(record._id)}
-          size={18}
-        />
+        <Space size="middle">
+          <MdEditSquare
+            className="cursor-pointer text-blue-500"
+            onClick={() => router.push(`/product/${record._id}`)}
+            size={24}
+          />
+          <FaTrash
+            className="cursor-pointer text-red-500"
+            onClick={() => handleDelete(record._id)}
+            size={24}
+          />
+        </Space>
       ),
     },
   ];

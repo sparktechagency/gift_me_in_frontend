@@ -20,6 +20,11 @@ import {
   useOverrideGiftMutation,
 } from "../../../redux/apiSlice/orderSlice";
 import { CloseOutlined } from "@ant-design/icons";
+import {
+  useGetAllProductsQuery,
+  useMarkAsDeliveredMutation,
+} from "../../../redux/apiSlice/productSlice";
+import toast from "react-hot-toast";
 
 dayjs.extend(duration);
 
@@ -32,8 +37,11 @@ const Page = () => {
   const [categoryProducts, setCategoryProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
 
+  console.log(categoryProducts);
+
   const { data: giftSent, isLoading, refetch } = useGetGiftSentQuery();
   const [overrideGift, { isLoading: isOverriding }] = useOverrideGiftMutation();
+  const [markAsSend] = useMarkAsDeliveredMutation();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -69,9 +77,7 @@ const Page = () => {
   };
 
   const { data: productsData, isLoading: isProductsLoading } =
-    useGetAllProductsByCategoryQuery(selectedCategory, {
-      skip: !selectedCategory,
-    });
+    useGetAllProductsQuery();
 
   useEffect(() => {
     if (productsData?.data) {
@@ -85,6 +91,27 @@ const Page = () => {
       // This assumes your API can handle string product names in the array
       setCurrentGifts([...currentGifts, newGiftInput.trim()]);
       setNewGiftInput("");
+    }
+  };
+
+  const handleMarkAsSend = async (record) => {
+    const data = {
+      status: "send",
+      id: record._id,
+    };
+
+    try {
+      const res = await markAsSend(data).unwrap();
+      if (res.success) {
+        toast.success(
+          record?.overrideName || "Gift marked as send successfully"
+        );
+        refetch();
+        setOverrideModalOpen(false);
+      }
+    } catch (error) {
+      console.error("Error marking gift as send:", error);
+      toast.error(record?.overrideName || "Failed to mark gift as send");
     }
   };
 
@@ -217,6 +244,24 @@ const Page = () => {
         </Button>
       ),
     },
+    {
+      title: "Mark As Send",
+      dataIndex: "status",
+      render: (_, record) =>
+        record.status === "pending" ? (
+          <Button
+            type="primary"
+            onClick={() => handleMarkAsSend(record)}
+            disabled={record.status === "send"}
+          >
+            Mark As Send
+          </Button>
+        ) : (
+          <span className="text-[#160E4B] font-medium text-[14px] leading-[17px]">
+            Send
+          </span>
+        ),
+    },
   ];
 
   return (
@@ -272,7 +317,7 @@ const Page = () => {
             <Space size={[8, 8]} wrap>
               {currentGifts.map((giftId) => (
                 <Tag
-                  key={giftId} // Use the giftId as the key instead of index
+                  key={giftId}
                   closable
                   onClose={() => handleRemoveGift(giftId)}
                   closeIcon={<CloseOutlined />}
