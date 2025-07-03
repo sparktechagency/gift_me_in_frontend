@@ -65,6 +65,7 @@ const EditProduct = ({ params }) => {
       form.setFieldsValue({
         productName: product.productName,
         description: product.description,
+        additionalInfo: product.additionalInfo,
         category: product.category,
         size: formatArrayField(product.size),
         color: formatArrayField(product.color),
@@ -222,6 +223,19 @@ const EditProduct = ({ params }) => {
               ]}
             >
               <TextArea rows={4} placeholder="Enter product description" />
+            </Form.Item>
+
+            <Form.Item
+              label="Additional Info"
+              name="additionalInfo"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input the additional info!",
+                },
+              ]}
+            >
+              <TextArea rows={4} placeholder="Enter additional info" />
             </Form.Item>
 
             <Form.Item
