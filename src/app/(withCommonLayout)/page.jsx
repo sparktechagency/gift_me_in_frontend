@@ -176,12 +176,14 @@ const Page = () => {
     <main className="w-full flex flex-col gap-8 ">
       <section>
         <div className="flex items-center justify-between">
-          <Card
-            title="Active Subscriber"
-            icon={User}
-            value={generalState.activeUser || "0"}
-            data={generalState.activeUser || data}
-          />
+          <Link href={"/subscribers"}>
+            <Card
+              title="Active Subscriber"
+              icon={User}
+              value={generalState.activeUser || "0"}
+              data={generalState.activeUser || data}
+            />
+          </Link>
           <Link href={"/giftSent"}>
             <Card
               title="Gift Sent"
