@@ -81,11 +81,7 @@ const Header = () => {
             <div className="flex items-center border-2 pe-5 rounded-full gap-2 sm:gap-3">
               <Image
                 className="rounded-lg w-12 h-12 sm:w-14 sm:h-14"
-                src={
-                  profile?.image?.startsWith("http")
-                    ? profile?.image
-                    : `${imageUrl}/${profile?.image}`
-                }
+                src={"https://www.shutterstock.com/image-vector/user-icon-vector-600nw-393536320.jpg"}
                 width={60}
                 height={60}
                 alt="profile"

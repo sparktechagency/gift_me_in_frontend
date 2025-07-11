@@ -5,11 +5,9 @@ export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     // baseUrl: "http://64.23.193.89:5000/api/v1/",
-    // baseUrl: "http://10.0.70.188:5000/api/v1/",
     baseUrl: "https://api.giftmein.com/api/v1/",
-    // baseUrl: "http://167.71.173.195:5004/api/v1/",
-    // baseUrl: "http://10.0.70.30:5000/api/v1/",
-    // baseUrl: "https://rakib5000.binarybards.online/api/v1/",
+    // baseUrl: "http://10.10.7.46:5000/api/v1/",
+
     prepareHeaders: (headers) => {
       const token =
         localStorage.getItem("authenticationToken") ||
@@ -25,7 +23,5 @@ export const api = createApi({
 });
 
 // export const imageUrl = "http://64.23.193.89:5000";
-// export const imageUrl = "http://10.0.70.188:5000";
 export const imageUrl = "https://api.giftmein.com";
-// export const imageUrl = "http://10.0.70.30:5000";
-// export const imageUrl = "https://rakib5000.binarybards.online";
+// export const imageUrl = "http://10.10.7.46:5000";
