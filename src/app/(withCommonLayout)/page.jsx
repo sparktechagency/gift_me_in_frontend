@@ -188,7 +188,7 @@ const Page = () => {
             <Card
               title="Gift Sent"
               icon={Gift}
-              value={generalState.giftsSent || "0"}
+              value={generalState.giftSend || "0"}
               data={data}
             />
           </Link>
@@ -196,7 +196,9 @@ const Page = () => {
             <Card
               title="Order"
               icon={ShoppingCart}
-              value={generalState.orders || "0"}
+              value={
+                generalState?.showOrder + generalState?.selectedGiftOrder || 0
+              }
               data={data}
             />
           </Link>
