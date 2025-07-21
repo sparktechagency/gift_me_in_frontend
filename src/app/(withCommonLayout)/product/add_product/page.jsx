@@ -11,6 +11,29 @@ import { useGetEventCategoriesQuery } from "../../../../redux/apiSlice/eventSlic
 const { TextArea } = Input;
 const { Option } = Select;
 
+const tags = [
+  "Electronics",
+  "Fashion",
+  "Books",
+  "Home & Living",
+  "Sports",
+  "Reading",
+  "Yoga & Meditation",
+  "Music & Instruments",
+  "Minimalist",
+  "Eco-friendly",
+  "Surprise/Unique Finds",
+  "Practical & Everyday Essentials",
+  "Coffee & Tea",
+  "Home & Decor",
+  "Beauty & Skincare",
+  "I love fun and quirky gifts",
+  "I appreciate high-quality & premium items",
+  "I enjoy puzzle & brain-teasing gifts",
+  "Birthday",
+  "Valentine’s Day",
+];
+
 const AddProducts = () => {
   const [form] = Form.useForm();
   const { data: categories, isLoading: categoriesLoading } =
@@ -201,8 +224,13 @@ const AddProducts = () => {
               rules={[
                 { required: true, message: "Please input at least one tag!" },
               ]}
+              initialValue={tags}
             >
-              <Select mode="tags" placeholder="Enter tags (e.g., New, Sale)" />
+              <Select
+                mode="tags"
+                placeholder="Enter tags (e.g., New, Sale)"
+                options={tags.map((tag) => ({ value: tag, label: tag }))}
+              />
             </Form.Item>
           </Col>
 
