@@ -94,8 +94,10 @@ const page = () => {
       key: "package",
       render: (pkg) => (
         <div>
-          <div className="font-medium">{pkg.name}</div>
-          <div className="text-gray-500 text-sm">Duration: {pkg.duration}</div>
+          <div className="font-medium">{pkg?.name || "N/A"}</div>
+          <div className="text-gray-500 text-sm">
+            Duration: {pkg?.duration || "N/A"}
+          </div>
         </div>
       ),
     },
