@@ -196,11 +196,11 @@ const Page = () => {
     },
     {
       title: "Email",
-      render: (_, record) => record?.user?.email,
+      render: (_, record) => record?.user?.email || "N/A",
     },
     {
       title: "Contact",
-      render: (_, record) => record?.event?.phone,
+      render: (_, record) => record?.event?.phone || "N/A",
     },
     {
       title: "Address",
@@ -222,21 +222,20 @@ const Page = () => {
     {
       title: "Selected Gift Price",
       dataIndex: "selectedGiftPrice",
-      render: (text) => (
-        <span className="text-red-500">{text || "0"}</span>
-      ),
+      render: (text) => <span className="text-red-500">{text || "0"}</span>,
     },
     {
       title: "Status",
       dataIndex: "status",
       render: (text) => (
         <span
-          className={`${text === "pending"
+          className={`${
+            text === "pending"
               ? "text-yellow-500"
               : text === "overridden"
-                ? "text-blue-500"
-                : "text-green-600"
-            } font-medium`}
+              ? "text-blue-500"
+              : "text-green-600"
+          } font-medium`}
         >
           {text}
         </span>

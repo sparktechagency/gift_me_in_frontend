@@ -82,11 +82,11 @@ const Page = () => {
     },
     {
       title: "Customer",
-      render: (_, record) => record?.user?.name,
+      render: (_, record) => record?.user?.name || "N/A",
     },
     {
       title: "Email",
-      render: (_, record) => record?.user?.email,
+      render: (_, record) => record?.user?.email || "N/A",
     },
     {
       title: "Shipping Address",
