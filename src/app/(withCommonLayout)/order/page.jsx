@@ -164,7 +164,9 @@ const Page = () => {
   }
 
   const gifts = giftSent?.data || [];
-  const pendingGifts = gifts.filter((gift) => gift.status === "pending");
+  const pendingGifts = gifts.filter(
+    (gift) => gift.status === "pending" || gift.status === "orderPlaced"
+  );
 
   // Create options for the Select component with both label and value
   const productOptions =
@@ -215,8 +217,14 @@ const Page = () => {
     {
       title: "Time Left",
       dataIndex: "updatedAt",
-      render: (text) => (
-        <span className="text-red-500">{getTimeLeft(text)}</span>
+      render: (text, record) => (
+        <>
+          {record?.status === "pending" ? (
+            <span className="text-red-500">{getTimeLeft(text)}</span>
+          ) : (
+            <span className="text-red-500">Expired</span>
+          )}
+        </>
       ),
     },
     {
@@ -244,7 +252,11 @@ const Page = () => {
     {
       title: "Action",
       render: (_, record) => (
-        <Button type="link" onClick={() => handleOverride(record)}>
+        <Button
+          type="link"
+          disabled={record.status === "orderPlaced"}
+          onClick={() => handleOverride(record)}
+        >
           Override
         </Button>
       ),
@@ -253,7 +265,7 @@ const Page = () => {
       title: "Mark As Send",
       dataIndex: "status",
       render: (_, record) =>
-        record.status === "pending" ? (
+        record.status === "pending" || record.status === "orderPlaced" ? (
           <Button
             type="primary"
             onClick={() => handleMarkAsSend(record)}

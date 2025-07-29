@@ -180,15 +180,15 @@ const Page = () => {
             <Card
               title="Active Subscriber"
               icon={User}
-              value={generalState.activeUser || "0"}
-              data={generalState.activeUser || data}
+              value={generalState?.activeUser || "0"}
+              data={generalState?.activeUser || data}
             />
           </Link>
           <Link href={"/giftSent"}>
             <Card
               title="Gift Sent"
               icon={Gift}
-              value={generalState.giftSend || "0"}
+              value={generalState?.totalGiftSend || "0"}
               data={data}
             />
           </Link>
@@ -206,7 +206,7 @@ const Page = () => {
             title="Total Earned"
             icon={DollarSign}
             value={
-              generalState.totalAmount ? `$${generalState.totalAmount}` : "0"
+              generalState?.totalAmount ? `$${generalState?.totalAmount}` : "0"
             }
             data={data}
           />
@@ -214,8 +214,8 @@ const Page = () => {
             title="My Revenue"
             icon={DollarSign}
             value={
-              generalState.totalAmount
-                ? `$${generalState.totalAmount / 2}`
+              generalState?.totalAmount
+                ? `$${generalState?.totalAmount / 2}`
                 : "N/A"
             }
             data={data}

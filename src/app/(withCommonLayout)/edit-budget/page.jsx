@@ -78,12 +78,12 @@ const page = () => {
       key: "user",
       render: (user) => (
         <div className="flex items-center gap-2">
-          <Avatar src={user.image} alt={user.name}>
-            {user.name.charAt(0)}
+          <Avatar src={user?.image} alt={user?.name}>
+            {user?.name.charAt(0)}
           </Avatar>
           <div>
-            <div className="font-medium">{user.name}</div>
-            <div className="text-gray-500 text-sm">{user.email}</div>
+            <div className="font-medium">{user?.name}</div>
+            <div className="text-gray-500 text-sm">{user?.email}</div>
           </div>
         </div>
       ),

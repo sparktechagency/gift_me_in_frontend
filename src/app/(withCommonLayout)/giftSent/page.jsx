@@ -100,8 +100,8 @@ const Page = () => {
     },
 
     {
-      title: "Time Left",
-      dataIndex: "createdAt",
+      title: "Event Date",
+      dataIndex: ["event", "eventDate"],
       render: (text) => (
         <span className="">{dayjs(text).format("DD/MM/YYYY")}</span>
       ),
