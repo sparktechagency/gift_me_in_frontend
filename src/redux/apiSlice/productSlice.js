@@ -70,7 +70,7 @@ const productApi = api.injectEndpoints({
         url: "/event-category",
         method: "GET",
       }),
-      providesTags: ["event"],
+      providesTags: ["event", "order"],
     }),
   }),
 });
